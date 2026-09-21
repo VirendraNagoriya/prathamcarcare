@@ -68,18 +68,13 @@ Write-Host ""
 Write-Host "  Bundle rebuilt at repo root: $dest"
 Write-Host ""
 Write-Host "  NEXT STEPS:" -ForegroundColor Yellow
-Write-Host "    1. Commit + push so GitHub carries the new bundle:"
-Write-Host "         git add -A; git commit -m \"deploy build\"; git push origin main"
-Write-Host "    2. On the server (Hostinger): the repo's TOP-LEVEL content = your site."
-Write-Host "       Open GitHub > Code > Download ZIP, extract, then put the extracted"
-Write-Host "       top-level files (index.html, api, assets, icons, .htaccess,"
-Write-Host "       install.php, sw.js, manifest.webmanifest, favicon.svg, icons.svg)"
-Write-Host "       into public_html/prathamcarcare/ - do NOT nest them in 'public_html'."
-Write-Host "       (Skip app/ and README.md - those are build tools/docs.)"
-Write-Host "    3. First-time server setup only:"
-Write-Host "       - edit api/config.php (DB_NAME / DB_USER / DB_PASS in the production block)"
-Write-Host "       - edit api/config.php: set `$APP_ENV = 'production' (top line)"
-Write-Host "       - open https://yourdomain.com/install once, then it deletes itself"
-Write-Host "    4. Enable SSL + PHP 8.1+ in hPanel. Login PIN 1234, set prices, change PIN."
+Write-Host '    1. Commit + push: this AUTO-DEPLOYS via GitHub Actions.'
+Write-Host '         git add -A; git commit -m "deploy build"; git push origin main'
+Write-Host '    2. First-time server setup only (deploys skip these):'
+Write-Host '       - create api/config.local.php from api/config.local.example.php'
+Write-Host '         set env to production + real db_name/db_user/db_pass (gitignored).'
+Write-Host '       - open https://yourdomain.com/install once, it self-deletes.'
+Write-Host '    3. Add repo secrets FTP_SERVER, FTP_USER, FTP_PASSWORD to enable deploys.'
+Write-Host '    4. Enable SSL + PHP 8.1+ in hPanel. Login PIN 1234.'
 Write-Host ""
 Write-Host "  DONE." -ForegroundColor Green

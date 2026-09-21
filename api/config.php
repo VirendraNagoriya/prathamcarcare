@@ -39,6 +39,25 @@ $config = [
     ],
 ];
 
+// Gitignored server-local overrides. If api/config.local.php exists on the
+// server (copy of config.local.example.php with real credentials), it fully
+// overrides the blocks above — so config.php contains NO secrets and is safe
+// for auto-deploy (GitHub → FTP) to overwrite on every push.
+$localOverrides = [];
+if (file_exists(__DIR__ . '/config.local.php')) {
+    $localOverrides = (array) require __DIR__ . '/config.local.php';
+}
+
+if (isset($localOverrides['env'])) {
+    $env = in_array($localOverrides['env'], ['local', 'production'], true) ? $localOverrides['env'] : $env;
+}
+
+foreach (['local', 'production'] as $scope) {
+    if (!empty($localOverrides[$scope]) && is_array($localOverrides[$scope])) {
+        $config[$scope] = array_merge($config[$scope], $localOverrides[$scope]);
+    }
+}
+
 define('DB_HOST', $config[APP_ENV]['db_host']);
 define('DB_NAME', $config[APP_ENV]['db_name']);
 define('DB_USER', $config[APP_ENV]['db_user']);

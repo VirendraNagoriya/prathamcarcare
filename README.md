@@ -40,15 +40,21 @@ manifest.webmanifest) are exactly what goes on the server. There is no nested
    powershell -ExecutionPolicy Bypass -File app\deploy.ps1 -DeployDatabase
    git add -A; git commit -m "deploy build"; git push origin main
    ```
-   (`-DeployDatabase` includes `install.php` for the one-time DB setup.)
+   Every push to `main` auto-deploys to Hostinger via GitHub Actions (free) —
+   no manual uploads. Manual upload is only needed once, below, to bootstrap.
 
-2. **On the server** (Hostinger): download the repo → **Code ▸ Download ZIP**,
-   extract, and replace the contents of your `public_html/prathamcarcare/` with the
-   extracted repo's top-level content (skip `app/` and `README.md` — build tools only).
+2. **First launch only** (server):
+   - Create `api/config.local.php` from `api/config.local.example.php` (it is
+     gitignored and never overwritten by deploys) with:
+     ```php
+     'env' => 'production',
+     'production' => ['db_host' => 'localhost', 'db_name' => '...', 'db_user' => '...', 'db_pass' => '...'],
+     ```
+   - Open `https://yourdomain/prathamcarcare/install` once, enable SSL + PHP 8.1+.
 
-3. **First launch only**: edit `api/config.php` — set `$APP_ENV = 'production'` and
-   put your real Hostinger DB credentials, open
-   `https://yourdomain/prathamcarcare/install` once, enable SSL + PHP 8.1+.
+To enable the auto-deploy, add three **repo secrets** (GitHub → Settings → Secrets →
+Actions): `FTP_SERVER`, `FTP_USER`, `FTP_PASSWORD` (create an FTP account in
+Hostinger hPanel → Files → FTP Accounts; server-dir is `/prathamcarcare`).
 
 ## Maintainers' notes
 

@@ -31,15 +31,15 @@ require_once $configFile;
 if (APP_ENV !== 'production') {
     http_response_code(500);
     out('api/config.php is not in production mode yet.');
-    out('Edit api/config.php and set  $APP_ENV = \'production\';  (and fill DB_NAME / DB_USER / DB_PASS in the production block), then reload this page.');
+    out('Create api/config.local.php (copy api/config.local.example.php) and set  \'env\' => \'production\'  with your real DB credentials, then reload this page.');
     exit;
 }
 
-$placeholder = strpos(DB_USER, 'u000000000') !== false;
+$placeholder = strpos(DB_USER, 'u000000000') !== false || strpos(DB_USER, 'placeholder') !== false;
 if ($placeholder || DB_NAME === '' || DB_USER === '' || DB_PASS === '') {
     http_response_code(500);
     out('api/config.php is not ready yet.');
-    out('Fill in your real Hostinger DB credentials (db_name, db_user, db_pass) in the production block of api/config.php, then reload this page.');
+    out('Fill in your real Hostinger DB credentials (db_name, db_user, db_pass) in api/config.local.php, then reload this page.');
     exit;
 }
 

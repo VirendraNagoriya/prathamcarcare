@@ -1,0 +1,8 @@
+# Server-local secrets / overrides (never commit, never auto-deploy)
+config.local.php
+APP_ENV
+
+# Editors / OS junk
+Thumbs.db
+.DS_Store
+*.log

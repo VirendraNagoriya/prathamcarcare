@@ -62,24 +62,26 @@ gives you the site files directly, with no wrapper folder to nest wrong.
 ```powershell
 # From app/ directory: rebuild the frontend into the repo root
 powershell -ExecutionPolicy Bypass -File deploy.ps1 -DeployDatabase
-# then commit + push so GitHub carries the new bundle:
+# then commit + push — this auto-deploys to Hostinger via GitHub Actions:
 git add -A; git commit -m "deploy build"; git push origin main
 ```
 
-Then on the server:
+**Auto-deploy (free GitHub Actions, ~1 min/push):** every push to `main` FTP-syncs
+the repo root into `public_html/prathamcarcare/` (`app/`, `README.md`,
+`config.local.php`, `APP_ENV` are excluded). One-time repo secrets needed:
+`FTP_SERVER`, `FTP_USER`, `FTP_PASSWORD` (like above, or upload manually once and
+skip the secret wiring).
 
-1. Download the repo from GitHub → **Code ▸ Download ZIP**, extract.
-2. **File Manager**: replace the contents of your `public_html/prathamcarcare/`
-   with the extracted repo's **top-level content** (index.html, api/, assets/,
-   icons/, .htaccess, install.php, sw.js, manifest.webmanifest, favicon.svg,
-   icons.svg). Skip `app/` and `README.md` — build tools/docs only. Do **not**
-   upload the zip or any wrapper folder.
-3. **Edit** `api/config.php` (inside `prathamcarcare/`):
-   - Set `$APP_ENV = 'production';` (top of the file) — no separate APP_ENV file needed
-   - Fill `db_name` / `db_user` / `db_pass` with your Hostinger MySQL credentials
-4. **Open `https://yourdomain.com/prathamcarcare/install` once** — it creates
+First launch on the server:
+
+1. Create **`api/config.local.php`** from `api/config.local.example.php` — it is
+   gitignored, holds real credentials, and is never overwritten by deploys:
+   - `'env' => 'production'`
+   - `'production' => ['db_host' => 'localhost', 'db_name' => '...', 'db_user' => '...', 'db_pass' => '...']`
+   (Do NOT edit `api/config.php` itself for credentials — that file is redeployed on every push.)
+2. **Open `https://yourdomain.com/prathamcarcare/install` once** — it creates
    the 8 tables + 34 catalog items + settings, then deletes itself.
-5. Open the app — default PIN: **1234**. Change it immediately via Settings.
+3. Open the app — default PIN: **1234**. Change it immediately via Settings.
 
 > **Remote MySQL note**: Hostinger shared hosting usually blocks remote MySQL connections. The PHP API runs on the *same* server, so it connects via `localhost` without needing remote access enabled.
 
