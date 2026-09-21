@@ -39,8 +39,23 @@ final class Router
 
     public static function current_path(): string
     {
-        $path = parse_url($_SERVER['REQUEST_URI'] ?? '/', PHP_URL_PATH);
-        $path = rtrim((string)$path, '/');
+        $path = (string) parse_url($_SERVER['REQUEST_URI'] ?? '/', PHP_URL_PATH);
+
+        // The app may be installed in a subdirectory (e.g. /prathamcarcare).
+        // Routes are registered relative to the app root (/api/...), so strip
+        // that prefix before matching. Works at web root too (base = '').
+        $script = str_replace('\\', '/', $_SERVER['SCRIPT_NAME'] ?? '');
+        $base   = (string) preg_replace('#/api/index\.php$#', '', $script);
+
+        if ($base === '' && ($pos = strpos($path, '/api/')) !== false) {
+            $base = substr($path, 0, $pos);
+        }
+
+        if ($base !== '' && str_starts_with($path, $base)) {
+            $path = substr($path, strlen($base));
+        }
+
+        $path = rtrim($path, '/');
         return $path === '' ? '/' : $path;
     }
 }
