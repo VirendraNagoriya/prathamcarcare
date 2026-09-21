@@ -1,0 +1,45 @@
+# Hostinger / Apache — serves the PWA from index.html and routes /api/* to PHP.
+DirectoryIndex index.html
+
+<IfModule mod_rewrite.c>
+    RewriteEngine On
+
+    # Force HTTPS (skip plain localhost so local dev on :8080 keeps working)
+    RewriteCond %{HTTPS} off
+    RewriteCond %{HTTP_HOST} !^(localhost|127\.0\.0\.1)$
+    RewriteRule ^ https://%{HTTP_HOST}%{REQUEST_URI} [L,R=301]
+
+    # Route everything under /api/ to the PHP API entry point
+    RewriteRule ^api(/.*)?$ api/index.php [L]
+
+    # SPA fallback: unknown non-file paths serve the PWA shell (optional)
+    RewriteCond %{REQUEST_FILENAME} !-f
+    RewriteCond %{REQUEST_FILENAME} !-d
+    RewriteRule ^ index.html [L]
+</IfModule>
+
+# Never serve this file
+<FilesMatch "^config\.php$">
+    Require all denied
+</FilesMatch>
+
+# Note: PHP limits (post_max_size / upload_max_filesize / max_input_vars) are set via
+# hPanel > PHP Configuration, NOT here — php_value directives in .htaccess cause
+# HTTP 500 on Hostinger's LiteSpeed stack. The app does not upload files anyway.
+
+# Security headers
+Header set X-Content-Type-Options "nosniff"
+Header set X-Frame-Options "SAMEORIGIN"
+Header set Referrer-Policy "strict-origin-when-cross-origin"
+Header always unset X-Powered-By
+
+# HSTS — tell browsers to always use HTTPS (only shown over HTTPS)
+Header always set Strict-Transport-Security "max-age=31536000; includeSubDomains" env=HTTPS
+
+# Permissions Policy — disable browser features the PWA does not need
+Header set Permissions-Policy "camera=(), microphone=(), geolocation=(), payment=()"
+
+# Content Security Policy
+# - 'unsafe-inline' styles are required by react-native-web
+# - self/frame: WhatsApp + Google Review links open in new tabs via window.open
+Header set Content-Security-Policy "default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline'; img-src 'self' data:; connect-src 'self' https://wa.me; object-src 'none'; base-uri 'self'; frame-ancestors 'self'"

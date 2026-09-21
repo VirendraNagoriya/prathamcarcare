@@ -8,8 +8,8 @@ frontend/dist/
 backend/public/assets/
 backend/public/index.html
 
-# Deploy bundle
-deploy/public_html/
+# Deploy staging folder
+deploy/
 
 # DB backups
 db/backups/
@@ -27,5 +27,3 @@ Thumbs.db
 
 # Sensitive config overrides (if any local copies are made)
 backend/public/api/config.local.php
-# Upload-ready bundle zip
-deploy/*.zip

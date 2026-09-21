@@ -4,14 +4,15 @@ Billing, customers, service reminders, day sheet and expenses for **Pratham Car 
 
 - **Frontend**: React Native for Web + Vite + TypeScript (installable PWA)
 - **Backend**: PHP 8.1+ API + MySQL (vanilla PDO, no frameworks)
-- **Deploy**: Hostinger (`public_html`), bundle built by `app/deploy.ps1`
+- **Deploy**: GitHub is the single source of truth → download from GitHub and place on Hostinger (`public_html/`)
 
 ```
+public_html/   THE deployable site (upload its contents to the server)
 app/
-├── db/          schema.sql, seed.sql, migrations, reset helper
-├── backend/     PHP API (public/ = what becomes public_html/)
-├── frontend/    React Native Web PWA
-├── deploy.ps1   Builds + assembles a Hostinger-ready bundle
+├── db/          schema.sql, seed.sql, migrations, reset helper, install.php
+├── backend/     PHP API source (backend/public = what becomes part of public_html)
+├── frontend/    React Native Web PWA source
+├── deploy.ps1   Builds the frontend into ../public_html, ready to commit & push
 └── README.md    Full local-dev + deployment guide
 ```
 
@@ -26,18 +27,27 @@ php -S localhost:8080 -t public dev_router.php
 
 Open http://localhost:8080 → PIN `1234`.
 
-## Deploying to Hostinger
+## Deploying (GitHub-only workflow)
 
-See `app/README.md` → "Hostinger deployment" for the step-by-step. Essentials:
+Everything deployable lives in the repo's **`public_html/`** folder — it is the exact
+content that goes on the server. Workflow for every update:
 
-1. `powershell -ExecutionPolicy Bypass -File app/deploy.ps1` → creates `app/deploy/public_html/`
-2. Import `app/db/schema.sql` + `app/db/seed.sql` in phpMyAdmin
-3. Upload bundle to `public_html/`, then edit `api/config.php` → `APP_ENV = 'production'` + your DB credentials
-4. Set PHP **8.1+** and enable **SSL** in hPanel before opening the site
-5. Change the default PIN to a private one in Settings, then set your Google place ID
+1. **Build + commit + push** (from this machine):
+   ```powershell
+   powershell -ExecutionPolicy Bypass -File app\deploy.ps1 -DeployDatabase
+   git add -A; git commit -m "deploy build"; git push origin main
+   ```
+   (`-DeployDatabase` includes `install.php` for the one-time DB setup.)
+
+2. **On the server** (Hostinger): download the repo → **Code ▸ Download ZIP**,
+   extract, and replace the contents of your `public_html/prathamcarcare/` with
+   the repo's `public_html/` contents. (`git pull` works too if SSH is enabled.)
+
+3. **First launch only**: edit `api/config.php` (real Hostinger DB credentials),
+   create an `APP_ENV` file containing `production`, open
+   `https://yourdomain/prathamcarcare/install.php` once, enable SSL + PHP 8.1+.
 
 ## Maintainers' notes
 
-- Backups: the whole business lives in MySQL — export weekly, keep Hostinger auto-backup on.
-- Before any deploy, re-sync: `npm run build` → copy `dist/*` into `backend/public/` (deploy.ps1 does this automatically).
+- The whole business lives in MySQL — export weekly and keep Hostinger auto-backup on.
 - Hard-refresh (Ctrl+F5) after each deploy — the PWA service worker is network-first.

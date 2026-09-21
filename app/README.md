@@ -53,23 +53,30 @@ php db/reset_db.php
 
 ---
 
-## Hostinger deployment
+## Hostinger deployment (GitHub-only workflow)
+
+GitHub is the single source of truth. The deployable site is tracked at the **repo
+root's `public_html/`** folder — that is exactly what goes on the server.
 
 ```powershell
-# From app/ directory, run the deploy script:
-powershell -ExecutionPolicy Bypass -File deploy.ps1
-# → creates deploy/public_html/ with everything ready
+# From app/ directory: rebuild the frontend into ../public_html
+powershell -ExecutionPolicy Bypass -File deploy.ps1 -DeployDatabase
+# then commit + push so GitHub carries the new bundle:
+git add -A; git commit -m "deploy build"; git push origin main
 ```
 
-Then:
+Then on the server:
 
-1. **hPanel → Databases → MySQL**: create database + user; note the credentials.
-2. **hPanel → phpMyAdmin**: import `db/schema.sql` then `db/seed.sql` (or run `php db/reset_db.php` if PHP CLI is available).
-3. **File Manager / FTP**: upload `deploy/public_html/` contents to `public_html/`.
-4. **Edit** `public_html/api/config.php`:
-   - Set `APP_ENV` to `'production'`
-   - Fill `db_user` and `db_pass` with your Hostinger MySQL credentials
-5. Open `https://yourdomain.com/` — default PIN: **1234**. Change it immediately via Settings.
+1. Download the repo from GitHub → **Code ▸ Download ZIP**, extract.
+2. **File Manager**: replace the contents of your `public_html/prathamcarcare/`
+   with the repo's `public_html/` contents (index.html, api/, assets/, .htaccess,
+   install.php, ...). Do **not** upload the zip or an extra wrapper folder.
+3. **Edit** `public_html/prathamcarcare/api/config.php` (production block):
+   - Create an `APP_ENV` file in `api/` containing exactly one line: `production`
+   - Fill `db_name` / `db_user` / `db_pass` with your Hostinger MySQL credentials
+4. **Open `https://yourdomain.com/prathamcarcare/install.php` once** — it creates
+   the 8 tables + 34 catalog items + settings, then deletes itself.
+5. Open the app — default PIN: **1234**. Change it immediately via Settings.
 
 > **Remote MySQL note**: Hostinger shared hosting usually blocks remote MySQL connections. The PHP API runs on the *same* server, so it connects via `localhost` without needing remote access enabled.
 
@@ -103,8 +110,11 @@ app/
 │       └── api/     PHP entry + src/ (bootstrap, helpers, controllers)
 ├── frontend/
 │   └── src/         React Native Web app (screens, components, utils)
-├── deploy.ps1       One-command Hostinger bundle script
+├── deploy.ps1       Rebuilds the app into ../public_html (repo root, tracked)
 └── README.md
+
+public_html/         (repo root) the deployable site — upload its contents to
+                     the server; updated by deploy.ps1 then committed to GitHub
 ```
 
 ---
