@@ -27,3 +27,5 @@ Thumbs.db
 
 # Sensitive config overrides (if any local copies are made)
 backend/public/api/config.local.php
+# Upload-ready bundle zip
+deploy/*.zip

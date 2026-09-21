@@ -14,6 +14,7 @@ export default defineConfig({
       '/api': 'http://localhost:8080',
     },
   },
+  base: './', // relative assets: works in domain root or subfolder (/prathamcarcare/)
   build: {
     outDir: 'dist',
   },

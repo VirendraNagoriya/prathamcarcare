@@ -1,7 +1,14 @@
 const BASE = ''
 
+function resolveURL(path: string): string {
+  if (BASE) return `${BASE}${path}`
+  // Serve at domain root or any subdirectory (/prathamcarcare/): resolve the API
+  // relative to the current page so /api/* works from wherever index.html lives.
+  return new URL(path.replace(/^\/+/, ''), document.baseURI).href
+}
+
 async function request<T>(path: string, opts: RequestInit = {}): Promise<T> {
-  const res = await fetch(`${BASE}${path}`, {
+  const res = await fetch(resolveURL(path), {
     credentials: 'same-origin',
     headers: { 'Content-Type': 'application/json', ...opts.headers as Record<string, string> },
     ...opts,

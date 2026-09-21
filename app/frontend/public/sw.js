@@ -1,10 +1,13 @@
-const CACHE = 'pratham-v3'
+// Relative paths resolve against the service worker's scope (the folder it was
+// registered from), so this works whether the app lives at the domain root or in
+// a subdirectory like /prathamcarcare/.
+const CACHE = 'pratham-v4'
 const ASSETS = [
-  '/',
-  '/index.html',
-  '/manifest.webmanifest',
-  '/icons/icon-192.png',
-  '/icons/icon-512.png',
+  './',
+  './index.html',
+  './manifest.webmanifest',
+  './icons/icon-192.png',
+  './icons/icon-512.png',
 ]
 
 self.addEventListener('install', (event) => {
@@ -25,8 +28,8 @@ self.addEventListener('activate', (event) => {
 self.addEventListener('fetch', (event) => {
   const url = new URL(event.request.url)
   if (event.request.method !== 'GET') return
-  // never cache API calls
-  if (url.pathname.startsWith('/api/') || url.origin !== self.location.origin) return
+  // never cache API calls (matches /api/ at root or inside a subdirectory)
+  if (url.pathname.includes('/api/') || url.origin !== self.location.origin) return
 
   // HTML/navigation: network-first so the latest build always loads
   if (event.request.mode === 'navigate') {
@@ -34,10 +37,10 @@ self.addEventListener('fetch', (event) => {
       fetch(event.request)
         .then((res) => {
           const copy = res.clone()
-          caches.open(CACHE).then((c) => c.put('/index.html', copy))
+          caches.open(CACHE).then((c) => c.put('./index.html', copy))
           return res
         })
-        .catch(() => caches.match('/index.html')),
+        .catch(() => caches.match('./index.html')),
     )
     return
   }
