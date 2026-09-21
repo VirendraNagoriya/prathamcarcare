@@ -1,0 +1,29 @@
+# Dependencies
+node_modules/
+
+# Build output
+frontend/dist/
+
+# Generated web assets (Vite output is synced here after each build)
+backend/public/assets/
+backend/public/index.html
+
+# Deploy bundle
+deploy/public_html/
+
+# DB backups
+db/backups/
+
+# Backend runtime logs
+backend/logs/
+
+# Logs & temp
+*.log
+npm-debug.log*
+
+# OS junk
+Thumbs.db
+.DS_Store
+
+# Sensitive config overrides (if any local copies are made)
+backend/public/api/config.local.php
