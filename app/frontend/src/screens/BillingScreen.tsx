@@ -36,10 +36,12 @@ const rowAmount = (r: Row): number => {
 
 export default function BillingScreen({
   existing,
+  editId,
   onPreview,
   onCancel,
 }: {
   existing?: Vehicle
+  editId?: number
   onPreview: (invoice: InvoiceDetail) => void
   onCancel?: () => void
 }) {
@@ -55,10 +57,44 @@ export default function BillingScreen({
   const [adding, setAdding] = useState(false)
   const [error, setError] = useState('')
   const [busy, setBusy] = useState(false)
+  const [editLoading, setEditLoading] = useState(editId != null)
 
   useEffect(() => {
     api.catalog().then((r) => setCatalog(r.items)).catch(() => undefined)
   }, [])
+
+  useEffect(() => {
+    if (editId == null) return
+    let cancelled = false
+    setEditLoading(true)
+    api
+      .getInvoice(editId)
+      .then((inv) => {
+        if (cancelled) return
+        setPlate(inv.plate_number)
+        setOwner(inv.owner_name)
+        setPhone(inv.owner_phone)
+        setKm(inv.km_reading ?? '')
+        setNextKm(inv.next_service_km ?? '')
+        setNextDate(inv.next_service_date ?? '')
+        setRows(
+          inv.items.length > 0
+            ? inv.items.map((it) => ({
+                key: Math.random().toString(36).slice(2),
+                name: it.product_name,
+                qty: String(it.quantity),
+                rate: String(it.unit_rate),
+                showSuggestions: false,
+              }))
+            : [newRow()],
+        )
+      })
+      .catch((e) => setError(e instanceof Error ? e.message : 'Could not load invoice for editing'))
+      .finally(() => {
+        if (!cancelled) setEditLoading(false)
+      })
+    return () => { cancelled = true }
+  }, [editId])
 
   const total = useMemo(() => rows.reduce((sum, r) => sum + rowAmount(r), 0), [rows])
 
@@ -117,7 +153,7 @@ export default function BillingScreen({
 
     setBusy(true)
     try {
-      const created = await api.createInvoice({
+      const payload: Parameters<typeof api.createInvoice>[0] = {
         plate_number: plate.trim().toUpperCase(),
         owner_name: owner.trim(),
         owner_phone: phone.trim(),
@@ -125,8 +161,11 @@ export default function BillingScreen({
         next_service_km: nextKm.trim(),
         next_service_date: nextDate.trim(),
         items,
-      })
-      const detail = await api.getInvoice(created.id)
+      }
+      const saved = editId != null
+        ? await api.updateInvoice(editId, payload)
+        : await api.createInvoice(payload)
+      const detail = await api.getInvoice(saved.id)
       onPreview(detail)
     } catch (e) {
       setError(e instanceof Error ? e.message : 'Could not save invoice')
@@ -150,6 +189,14 @@ export default function BillingScreen({
           </Pressable>
         )}
 
+        {editId != null && (
+          <Text style={styles.editBanner}>✎ Editing Bill #{editId} — changes apply to this bill only.</Text>
+        )}
+
+        {editLoading ? (
+          <Text style={styles.error}>Loading bill for editing…</Text>
+        ) : (
+          <>
         <Text style={styles.sectionLabel}>Customer & Vehicle</Text>
         <View style={styles.metaGrid}>
           <TextInput style={styles.metaInput} value={plate} onChangeText={setPlate} placeholder="Car No. (e.g. MH-12-XX-1234)" placeholderTextColor={colors.muted} autoCapitalize="characters" />
@@ -290,8 +337,10 @@ export default function BillingScreen({
         </Text>
 
         <Pressable style={[styles.saveBtn, busy && styles.saveBtnBusy]} onPress={submit} disabled={busy}>
-          <Text style={styles.saveBtnText}>{busy ? 'Saving…' : 'Save & Preview Bill'}</Text>
+          <Text style={styles.saveBtnText}>{busy ? 'Saving…' : editId != null ? 'Save Changes & Preview' : 'Save & Preview Bill'}</Text>
         </Pressable>
+          </>
+        )}
       </ScrollView>
       <CalendarModal
         visible={showCal}
@@ -307,6 +356,17 @@ const styles = StyleSheet.create({
   flex: { flex: 1 },
   content: { padding: 14, paddingBottom: 40 },
   cancel: { color: colors.navy, fontWeight: '700', fontSize: font.lg, marginBottom: 8 },
+  editBanner: {
+    backgroundColor: '#fffbeb',
+    borderWidth: 1,
+    borderColor: '#fde047',
+    borderRadius: 8,
+    color: colors.navy,
+    fontWeight: '700',
+    fontSize: font.sm,
+    padding: 10,
+    marginBottom: 8,
+  },
   sectionLabel: {
     color: colors.navy,
     fontWeight: '800',

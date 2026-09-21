@@ -87,17 +87,27 @@ export default function HistoryScreen() {
         </View>
       }
       renderItem={({ item }) => (
-        <Pressable style={styles.row} onPress={() => push({ name: 'detail', id: item.id })}>
-          <View style={styles.rowLeft}>
-            <Text style={styles.billNo}>Bill No. {item.bill_ref}</Text>
-            <Text style={styles.plate}>{item.plate_number}</Text>
-            <Text style={styles.owner}>{item.owner_name} · {item.owner_phone}</Text>
-          </View>
-          <View style={styles.rowRight}>
-            <Text style={styles.amt}>₹{formatINR(item.total_amount)}</Text>
-            <Text style={styles.date}>{formatDate(item.created_at)}</Text>
-          </View>
-        </Pressable>
+        <View style={styles.row}>
+          <Pressable style={styles.rowMain} onPress={() => push({ name: 'detail', id: item.id })}>
+            <View style={styles.rowLeft}>
+              <Text style={styles.billNo}>Bill No. {item.bill_ref}</Text>
+              <Text style={styles.plate}>{item.plate_number}</Text>
+              <Text style={styles.owner}>{item.owner_name} · {item.owner_phone}</Text>
+            </View>
+            <View style={styles.rowRight}>
+              <Text style={styles.amt}>₹{formatINR(item.total_amount)}</Text>
+              <Text style={styles.date}>{formatDate(item.created_at)}</Text>
+            </View>
+          </Pressable>
+          <Pressable
+            style={styles.rowEdit}
+            onPress={() => push({ name: 'billing', editId: item.id })}
+            hitSlop={6}
+            accessibilityLabel={`Edit bill ${item.bill_ref}`}
+          >
+            <Text style={styles.rowEditText}>✎</Text>
+          </Pressable>
+        </View>
       )}
       ListFooterComponent={
         loadingMore ? (
@@ -137,16 +147,26 @@ const styles = StyleSheet.create({
     padding: 12,
     marginBottom: 10,
     flexDirection: 'row',
-    justifyContent: 'space-between',
     alignItems: 'center',
+    gap: 8,
   },
+  rowMain: { flex: 1, flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' },
   rowLeft: { flex: 1 },
   billNo: { color: colors.navy, fontWeight: '800', fontSize: font.md },
   plate: { color: colors.ink, fontWeight: '700', fontSize: font.lg, marginTop: 2 },
   owner: { color: colors.muted, fontSize: font.sm, marginTop: 2 },
-  rowRight: { alignItems: 'flex-end' },
+  rowRight: { alignItems: 'flex-end', marginLeft: 8 },
   amt: { color: colors.navy, fontWeight: '800', fontSize: font.lg },
   date: { color: colors.muted, fontSize: font.xs, marginTop: 2 },
+  rowEdit: {
+    width: 40,
+    height: 40,
+    borderRadius: 10,
+    backgroundColor: colors.blue,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  rowEditText: { color: '#ffffff', fontWeight: '800', fontSize: font.lg },
   footer: { paddingVertical: 14 },
   empty: { color: colors.muted, fontSize: font.md, textAlign: 'center', marginTop: 30, padding: 20 },
 })

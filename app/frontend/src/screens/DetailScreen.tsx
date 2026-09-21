@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react'
-import { View, Text, Pressable, ScrollView, StyleSheet } from 'react-native'
+import { View, Text, Pressable, ScrollView, StyleSheet, useWindowDimensions } from 'react-native'
 import { colors, font } from '../theme'
 import { api, type InvoiceDetail, type Settings } from '../api/client'
 import InvoiceSheet from '../components/InvoiceSheet'
@@ -14,6 +14,8 @@ const RESULT_MSG: Record<string, string> = {
 
 export default function DetailScreen({ id }: { id: number }) {
   const { push } = useNav()
+  const { width } = useWindowDimensions()
+  const narrow = width < 560
   const [invoice, setInvoice] = useState<InvoiceDetail | null>(null)
   const [settings, setSettings] = useState<Settings | null>(null)
   const [error, setError] = useState('')
@@ -83,12 +85,15 @@ export default function DetailScreen({ id }: { id: number }) {
       </ScrollView>
       <View style={styles.toolbarWrap}>
         {msg !== '' && <Text style={styles.msg}>{msg}</Text>}
-        <View style={styles.toolbar}>
+        <View style={[styles.toolbar, narrow && styles.toolbarNarrow]}>
+          <Pressable style={[styles.btn, styles.btnEdit]} onPress={() => push({ name: 'billing', editId: id })}>
+            <Text style={styles.btnText}>✎ Edit Bill</Text>
+          </Pressable>
           <Pressable style={[styles.btn, styles.btnGreen]} onPress={() => void sendPdf()}>
-            <Text style={styles.btnText}>{busy ? 'Generating…' : 'Send PDF to Customer'}</Text>
+            <Text style={[styles.btnText, narrow && styles.btnTextSmall]}>{busy ? 'Generating…' : 'Send PDF to Customer'}</Text>
           </Pressable>
           <Pressable style={[styles.btn, styles.btnGhost]} onPress={() => void downloadPdf()}>
-            <Text style={styles.btnGhostText}>PDF ⤓</Text>
+            <Text style={[styles.btnGhostText, narrow && styles.btnTextSmall]}>PDF ⤓</Text>
           </Pressable>
           <Pressable style={[styles.btn, styles.btnNavy]} onPress={() => window.print()}>
             <Text style={styles.btnText}>🖨 Print</Text>
@@ -111,11 +116,14 @@ const styles = StyleSheet.create({
     borderTopColor: colors.line,
   },
   toolbar: { flexDirection: 'row', gap: 8 },
+  toolbarNarrow: { flexDirection: 'column' },
   btn: { flex: 1, paddingVertical: 13, borderRadius: 10, alignItems: 'center' },
   btnNavy: { backgroundColor: colors.navy },
   btnGreen: { backgroundColor: '#25d366' },
+  btnEdit: { backgroundColor: colors.blue },
   btnGhost: { backgroundColor: colors.card, borderWidth: 1.5, borderColor: colors.navy },
   btnText: { color: '#ffffff', fontWeight: '800', fontSize: font.lg },
+  btnTextSmall: { fontSize: font.md },
   btnGhostText: { color: colors.navy, fontWeight: '800', fontSize: font.lg },
   msg: { color: colors.success, fontSize: font.sm, fontWeight: '600', marginBottom: 8 },
   goBtn: { borderWidth: 1.5, borderColor: colors.navy, borderRadius: 8, paddingHorizontal: 16, paddingVertical: 10 },

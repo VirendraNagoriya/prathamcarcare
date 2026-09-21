@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useState } from 'react'
-import { View, Text, TextInput, Pressable, FlatList, StyleSheet } from 'react-native'
+import { View, Text, TextInput, Pressable, FlatList, StyleSheet, useWindowDimensions } from 'react-native'
 import { colors, font } from '../theme'
 import { api, type CatalogItem } from '../api/client'
 import { formatINR } from '../utils/format'
@@ -11,6 +11,8 @@ interface EditingState {
 }
 
 export default function ProductsScreen() {
+  const { width } = useWindowDimensions()
+  const wide = width >= 480
   const [items, setItems] = useState<CatalogItem[]>([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState('')
@@ -110,8 +112,10 @@ export default function ProductsScreen() {
 
           <View style={styles.addCard}>
             <Text style={styles.addLabel}>＋ Add new product / service</Text>
-            <TextInput style={styles.input} value={newName} onChangeText={setNewName} placeholder="Product name" placeholderTextColor={colors.muted} />
-            <TextInput style={styles.input} value={newPrice} onChangeText={setNewPrice} placeholder="Default price (₹)" placeholderTextColor={colors.muted} keyboardType="decimal-pad" />
+            <View style={wide && styles.inputsRow}>
+              <TextInput style={[styles.input, wide && styles.inputHalf]} value={newName} onChangeText={setNewName} placeholder="Product name" placeholderTextColor={colors.muted} />
+              <TextInput style={[styles.input, wide && styles.inputHalf]} value={newPrice} onChangeText={setNewPrice} placeholder="Default price (₹)" placeholderTextColor={colors.muted} keyboardType="decimal-pad" />
+            </View>
             <Pressable style={[styles.btn, adding && styles.btnDim]} onPress={addItem} disabled={adding}>
               <Text style={styles.btnText}>{adding ? 'Adding…' : 'Add to Inventory'}</Text>
             </Pressable>
@@ -131,8 +135,10 @@ export default function ProductsScreen() {
       renderItem={({ item }) =>
         editing?.id === item.id ? (
           <View style={styles.editCard}>
-            <TextInput style={styles.input} value={editing.name} onChangeText={(t) => setEditing({ ...editing, name: t })} placeholder="Product name" placeholderTextColor={colors.muted} />
-            <TextInput style={styles.input} value={editing.price} onChangeText={(t) => setEditing({ ...editing, price: t })} placeholder="Default price (₹)" placeholderTextColor={colors.muted} keyboardType="decimal-pad" />
+            <View style={wide && styles.inputsRow}>
+              <TextInput style={[styles.input, wide && styles.inputHalf]} value={editing.name} onChangeText={(t) => setEditing({ ...editing, name: t })} placeholder="Product name" placeholderTextColor={colors.muted} />
+              <TextInput style={[styles.input, wide && styles.inputHalf]} value={editing.price} onChangeText={(t) => setEditing({ ...editing, price: t })} placeholder="Default price (₹)" placeholderTextColor={colors.muted} keyboardType="decimal-pad" />
+            </View>
             <View style={styles.rowBtns}>
               <Pressable style={[styles.btn, styles.btnGreen]} onPress={saveEdit}>
                 <Text style={styles.btnText}>Save</Text>
@@ -183,6 +189,8 @@ const styles = StyleSheet.create({
     padding: 12,
     marginBottom: 12,
   },
+  inputsRow: { flexDirection: 'row', gap: 8 },
+  inputHalf: { flex: 1 },
   addLabel: { color: colors.navy, fontWeight: '800', fontSize: font.md, marginBottom: 8 },
   input: {
     borderWidth: 1.5,

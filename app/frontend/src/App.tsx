@@ -73,6 +73,7 @@ function ScreenHost() {
         {current.name === 'billing' && (
           <BillingScreen
             existing={current.vehicle}
+            editId={current.editId}
             onCancel={() => reset({ name: 'dashboard' })}
             onPreview={(invoice) => reset({ name: 'preview', invoice })}
           />
@@ -112,6 +113,9 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
+    width: '100%',
+    maxWidth: 700,
+    alignSelf: 'center',
   },
   headerTitle: { color: '#ffffff', fontSize: font.xl, fontWeight: '800', letterSpacing: 0.5 },
   headerSub: { color: '#93c5fd', fontSize: font.xs, fontWeight: '600', marginTop: 1 },

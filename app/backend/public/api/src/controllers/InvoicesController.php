@@ -119,6 +119,118 @@ final class InvoicesController
         ], 201);
     }
 
+    public function update(array $args): void
+    {
+        $id = (int) $args[0];
+        if ($id <= 0) json_error('Invalid invoice id', 422);
+
+        $pdo = db();
+        $existing = $pdo->prepare(
+            'SELECT inv.id
+             FROM invoices inv
+             WHERE inv.id = :id'
+        );
+        $existing->execute([':id' => $id]);
+        if (!$existing->fetch()) json_error('Invoice not found', 404);
+
+        $body = read_json_body();
+
+        $plateNumber   = trim((string) ($body['plate_number'] ?? ''));
+        $ownerName     = trim((string) ($body['owner_name'] ?? ''));
+        $ownerPhone    = trim((string) ($body['owner_phone'] ?? ''));
+        $kmReading     = (string) ($body['km_reading'] ?? '');
+        $nextServiceKm = (string) ($body['next_service_km'] ?? '');
+        $nextServiceDate = (string) ($body['next_service_date'] ?? '');
+        $items         = $body['items'] ?? [];
+
+        if ($nextServiceDate !== '' && !preg_match('/^\d{4}-\d{2}-\d{2}$/', $nextServiceDate)) {
+            json_error('next_service_date must use YYYY-MM-DD format', 422);
+        }
+
+        if ($plateNumber === '') json_error('plate_number is required', 422);
+        if ($ownerName === '')   json_error('owner_name is required', 422);
+        if ($ownerPhone === '')  json_error('owner_phone is required', 422);
+        if (!is_array($items) || count($items) === 0) json_error('At least one item is required', 422);
+        if (mb_strlen($plateNumber) > 50) json_error('Car number is too long', 422);
+        if (mb_strlen($ownerName) > 255)  json_error('Owner name is too long', 422);
+        if (mb_strlen($ownerPhone) > 20)  json_error('Mobile number is too long', 422);
+        if (count($items) > 50) json_error('Maximum 50 items per invoice', 422);
+
+        foreach ($items as $i => $item) {
+            $name = (string) ($item['product_name'] ?? '');
+            $qty  = (int) ($item['quantity'] ?? 1);
+            $rate = (float) ($item['unit_rate'] ?? 0);
+            if ($name === '' || $qty <= 0) {
+                json_error("Item " . ($i + 1) . " is invalid", 422);
+            }
+            $items[$i]['quantity']       = $qty;
+            $items[$i]['unit_rate']      = $rate;
+            $items[$i]['charged_amount'] = round($rate * $qty, 2);
+        }
+
+        $total = 0.0;
+        foreach ($items as $item) {
+            $total += (float) $item['charged_amount'];
+        }
+
+        $pdo->beginTransaction();
+        try {
+            // Upsert vehicle (same behaviour as create)
+            $stmt = $pdo->prepare(
+                'INSERT INTO vehicles (plate_number, owner_name, owner_phone)
+                 VALUES (:pn, :on, :op)
+                 ON DUPLICATE KEY UPDATE owner_name = VALUES(owner_name), owner_phone = VALUES(owner_phone)'
+            );
+            $stmt->execute([':pn' => $plateNumber, ':on' => $ownerName, ':op' => $ownerPhone]);
+            $vehicleId = (int) $pdo->query('SELECT id FROM vehicles WHERE plate_number = ' . $pdo->quote($plateNumber))->fetchColumn();
+
+            $stmt = $pdo->prepare(
+                'UPDATE invoices
+                 SET vehicle_id = :vid, total_amount = :total, km_reading = :km,
+                     next_service_km = :nkm, next_service_date = :nsd
+                 WHERE id = :id'
+            );
+            $stmt->execute([
+                ':vid'   => $vehicleId,
+                ':total' => round($total, 2),
+                ':km'    => $kmReading ?: null,
+                ':nkm'   => $nextServiceKm ?: null,
+                ':nsd'   => $nextServiceDate !== '' ? $nextServiceDate : null,
+                ':id'    => $id,
+            ]);
+
+            // Replace line items
+            $pdo->prepare('DELETE FROM invoice_items WHERE invoice_id = :id')->execute([':id' => $id]);
+
+            $stmt = $pdo->prepare(
+                'INSERT INTO invoice_items (invoice_id, product_name, quantity, unit_rate, charged_amount)
+                 VALUES (:iid, :pn, :qty, :rate, :amt)'
+            );
+            foreach ($items as $item) {
+                $stmt->execute([
+                    ':iid' => $id,
+                    ':pn'  => $item['product_name'],
+                    ':qty' => $item['quantity'],
+                    ':rate'=> $item['unit_rate'],
+                    ':amt' => $item['charged_amount'],
+                ]);
+            }
+
+            $pdo->commit();
+        } catch (\Throwable $e) {
+            $pdo->rollBack();
+            log_error('Invoice update failed: ' . $e->getMessage());
+            json_error(APP_ENV === 'production' ? 'Failed to update invoice. Please try again.' : 'Failed to update invoice: ' . $e->getMessage(), 500);
+        }
+
+        json_response([
+            'id'         => $id,
+            'bill_ref'   => make_bill_ref($plateNumber, $id),
+            'total'      => round($total, 2),
+            'vehicle_id' => $vehicleId,
+        ]);
+    }
+
     public function list(): void
     {
         $q      = trim((string) ($_GET['q'] ?? ''));

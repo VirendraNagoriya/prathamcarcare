@@ -2,7 +2,7 @@ import type { Vehicle, InvoiceDetail } from './api/client'
 
 export type Route =
   | { name: 'dashboard' }
-  | { name: 'billing'; vehicle?: Vehicle }
+  | { name: 'billing'; vehicle?: Vehicle; editId?: number }
   | { name: 'preview'; invoice: InvoiceDetail }
   | { name: 'history' }
   | { name: 'detail'; id: number }

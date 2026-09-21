@@ -119,6 +119,10 @@ $router->add('GET',  '/api/invoices',   static function () use ($invoices): void
     require_auth();
     $invoices->list();
 });
+$router->add('PUT',  '/api/invoices/{id}', static function (array $args) use ($invoices): void {
+    require_auth();
+    $invoices->update($args);
+});
 $router->add('GET',  '/api/invoices/{id}', static function (array $args) use ($invoices): void {
     require_auth();
     $invoices->get($args);

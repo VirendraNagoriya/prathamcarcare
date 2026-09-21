@@ -115,6 +115,16 @@ export interface DaySheet {
   net: number
 }
 
+export interface InvoiceInput {
+  plate_number: string
+  owner_name: string
+  owner_phone: string
+  km_reading: string
+  next_service_km: string
+  next_service_date: string
+  items: Array<{ product_name: string; quantity: number; unit_rate: number }>
+}
+
 export const api = {
   login: (pin: string) => request<{ authed: boolean }>('/api/login', { method: 'POST', body: JSON.stringify({ pin }) }),
 
@@ -138,15 +148,11 @@ export const api = {
   getVehicleBills: (id: number) =>
     request<{ vehicle: Vehicle; bills: CustomerBill[] }>(`/api/vehicles/${id}/bills`),
 
-  createInvoice: (data: {
-    plate_number: string
-    owner_name: string
-    owner_phone: string
-    km_reading: string
-    next_service_km: string
-    next_service_date: string
-    items: Array<{ product_name: string; quantity: number; unit_rate: number }>
-  }) => request<{ id: number; bill_ref: string; total: number; vehicle_id: number }>('/api/invoices', { method: 'POST', body: JSON.stringify(data) }),
+  createInvoice: (data: InvoiceInput) =>
+    request<{ id: number; bill_ref: string; total: number; vehicle_id: number }>('/api/invoices', { method: 'POST', body: JSON.stringify(data) }),
+
+  updateInvoice: (id: number, data: InvoiceInput) =>
+    request<{ id: number; bill_ref: string; total: number; vehicle_id: number }>(`/api/invoices/${id}`, { method: 'PUT', body: JSON.stringify(data) }),
 
   invoiceHistory: (q = '', offset = 0) => {
     const params = new URLSearchParams({ offset: String(offset) })

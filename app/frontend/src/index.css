@@ -5,6 +5,11 @@
   -webkit-tap-highlight-color: transparent;
 }
 
+html {
+  -webkit-text-size-adjust: 100%;
+  text-size-adjust: 100%;
+}
+
 html, body {
   font-family: -apple-system, BlinkMacSystemFont, 'Helvetica Neue', Helvetica, Arial, sans-serif;
   background-color: #f8fafc;
@@ -16,10 +21,30 @@ html, body {
 
 #root {
   min-height: 100%;
+  display: flex;
+  flex-direction: column;
 }
 
+/* Prevent iOS Safari from auto-zooming when inputs are focused */
 input, button, textarea, select {
   font: inherit;
+}
+
+input, textarea, select {
+  font-size: 16px;
+}
+
+@media (min-width: 768px) {
+  #root {
+    background-color: #eef2f7;
+    box-shadow: 0 0 40px rgba(2, 6, 23, 0.08);
+    max-width: 700px;
+    margin: 0 auto;
+    min-height: 100vh;
+  }
+  html, body {
+    background-color: #e2e8f0;
+  }
 }
 
 @media print {
