@@ -5,9 +5,16 @@
  */
 declare(strict_types=1);
 
-$env = getenv('APP_ENV') ?: (file_exists(__DIR__ . '/APP_ENV') ? trim((string) file_get_contents(__DIR__ . '/APP_ENV')) : 'local');
+$env = getenv('APP_ENV');
+if ($env === false || $env === '') {
+    $env = file_exists(__DIR__ . '/APP_ENV') ? trim((string) file_get_contents(__DIR__ . '/APP_ENV')) : 'local';
+}
 
-const APP_ENV = 'local'; // 'local' | 'production'
+// 'local' (XAMPP) | 'production' (Hostinger).
+// Default is 'local'. On the server, drop a file named APP_ENV next to this
+// config.php containing the word 'production' (or set the APP_ENV env var).
+$env = in_array($env, ['local', 'production'], true) ? $env : 'local';
+define('APP_ENV', $env);
 
 $config = [
     'local' => [
