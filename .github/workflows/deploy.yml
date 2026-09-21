@@ -1,8 +1,7 @@
 name: Deploy to Hostinger
 
 on:
-  push:
-    branches: [main]
+  # Manual only — run from Actions tab when you want. (No auto-run on push.)
   workflow_dispatch:
 
 jobs:
