@@ -55,11 +55,12 @@ php db/reset_db.php
 
 ## Hostinger deployment (GitHub-only workflow)
 
-GitHub is the single source of truth. The deployable site is tracked at the **repo
-root's `public_html/`** folder — that is exactly what goes on the server.
+GitHub is the single source of truth. The **repo root is the deployable site**
+(index.html, api/, assets/, .htaccess, install.php, ...) — downloading the repo
+gives you the site files directly, with no wrapper folder to nest wrong.
 
 ```powershell
-# From app/ directory: rebuild the frontend into ../public_html
+# From app/ directory: rebuild the frontend into the repo root
 powershell -ExecutionPolicy Bypass -File deploy.ps1 -DeployDatabase
 # then commit + push so GitHub carries the new bundle:
 git add -A; git commit -m "deploy build"; git push origin main
@@ -69,12 +70,14 @@ Then on the server:
 
 1. Download the repo from GitHub → **Code ▸ Download ZIP**, extract.
 2. **File Manager**: replace the contents of your `public_html/prathamcarcare/`
-   with the repo's `public_html/` contents (index.html, api/, assets/, .htaccess,
-   install.php, ...). Do **not** upload the zip or an extra wrapper folder.
-3. **Edit** `public_html/prathamcarcare/api/config.php`:
+   with the extracted repo's **top-level content** (index.html, api/, assets/,
+   icons/, .htaccess, install.php, sw.js, manifest.webmanifest, favicon.svg,
+   icons.svg). Skip `app/` and `README.md` — build tools/docs only. Do **not**
+   upload the zip or any wrapper folder.
+3. **Edit** `api/config.php` (inside `prathamcarcare/`):
    - Set `$APP_ENV = 'production';` (top of the file) — no separate APP_ENV file needed
    - Fill `db_name` / `db_user` / `db_pass` with your Hostinger MySQL credentials
-4. **Open `https://yourdomain.com/prathamcarcare/install.php` once** — it creates
+4. **Open `https://yourdomain.com/prathamcarcare/install` once** — it creates
    the 8 tables + 34 catalog items + settings, then deletes itself.
 5. Open the app — default PIN: **1234**. Change it immediately via Settings.
 
@@ -103,18 +106,18 @@ Then on the server:
 ## Project structure
 
 ```
+(repo root)          THE deployable site — index.html, api/, assets/, icons/,
+                     .htaccess, install.php, sw.js, manifest.webmanifest
 app/
-├── db/              SQL schema, catalog seed, reset script
+├── db/              SQL schema, catalog seed, reset script, install.php
 ├── backend/
-│   └── public/      = what becomes public_html/
+│   └── public/      PHP API source that deploy.ps1 merges into the repo root
 │       └── api/     PHP entry + src/ (bootstrap, helpers, controllers)
 ├── frontend/
 │   └── src/         React Native Web app (screens, components, utils)
-├── deploy.ps1       Rebuilds the app into ../public_html (repo root, tracked)
+├── docs/            design spec + reference images
+├── deploy.ps1       Rebuilds the app into the repo root (tracked), then commit + push
 └── README.md
-
-public_html/         (repo root) the deployable site — upload its contents to
-                     the server; updated by deploy.ps1 then committed to GitHub
 ```
 
 ---
