@@ -30,8 +30,8 @@ require_once $configFile;
 
 if (APP_ENV !== 'production') {
     http_response_code(500);
-    out('api/config.php is not production-ready yet.');
-    out('To enable, drop a file named "APP_ENV" in the api/ folder containing the word "production" (one line), set your real Hostinger DB credentials in the production block of api/config.php, then reload this page.');
+    out('api/config.php is not in production mode yet.');
+    out('Edit api/config.php and set  $APP_ENV = \'production\';  (and fill DB_NAME / DB_USER / DB_PASS in the production block), then reload this page.');
     exit;
 }
 

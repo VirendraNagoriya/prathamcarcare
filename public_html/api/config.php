@@ -5,14 +5,18 @@
  */
 declare(strict_types=1);
 
+// ---------------------------------------------------------------------------
+// ENVIRONMENT — 'local' (XAMPP dev) | 'production' (Hostinger server).
+// On the server, set the line below to 'production' BEFORE going live:
+//        $APP_ENV = 'production';
+// (The APP_ENV file / environment variable still work as an alternative.)
+// ---------------------------------------------------------------------------
+$APP_ENV = 'local'; // <<< CHANGE TO 'production' ON THE SERVER
+
 $env = getenv('APP_ENV');
 if ($env === false || $env === '') {
-    $env = file_exists(__DIR__ . '/APP_ENV') ? trim((string) file_get_contents(__DIR__ . '/APP_ENV')) : 'local';
+    $env = file_exists(__DIR__ . '/APP_ENV') ? trim((string) file_get_contents(__DIR__ . '/APP_ENV')) : $APP_ENV;
 }
-
-// 'local' (XAMPP) | 'production' (Hostinger).
-// Default is 'local'. On the server, drop a file named APP_ENV next to this
-// config.php containing the word 'production' (or set the APP_ENV env var).
 $env = in_array($env, ['local', 'production'], true) ? $env : 'local';
 define('APP_ENV', $env);
 

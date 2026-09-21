@@ -74,7 +74,7 @@ Write-Host "       this repo's public_html/ contents (GitHub > Code > Download Z
 Write-Host "       or git pull if you have SSH). Do NOT upload the zip file itself."
 Write-Host "    3. First-time server setup only:"
 Write-Host "       - edit api/config.php (DB_NAME / DB_USER / DB_PASS in the production block)"
-Write-Host "       - drop an 'APP_ENV' file in api/ containing the word 'production'"
+Write-Host "       - edit api/config.php: set `$APP_ENV = 'production' (top line), fill DB_NAME / DB_USER / DB_PASS"
 Write-Host "       - open https://yourdomain.com/install.php once, then it deletes itself"
 Write-Host "    4. Enable SSL + PHP 8.1+ in hPanel. Login PIN 1234, set prices, change PIN."
 Write-Host ""

@@ -12,6 +12,9 @@ DirectoryIndex index.html
     # Route everything under /api/ to the PHP API entry point
     RewriteRule ^api(/.*)?$ api/index.php [L]
 
+    # Extensionless helpers: /install  →  install.php (self-deletes after setup)
+    RewriteRule ^install$ install.php [L]
+
     # SPA fallback: unknown non-file paths serve the PWA shell (optional)
     RewriteCond %{REQUEST_FILENAME} !-f
     RewriteCond %{REQUEST_FILENAME} !-d

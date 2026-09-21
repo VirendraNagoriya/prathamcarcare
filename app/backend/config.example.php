@@ -5,11 +5,12 @@
  */
 declare(strict_types=1);
 
-// 'local' (XAMPP) | 'production' (Hostinger).
-// Default is 'local'. On the server, drop a file named APP_ENV next to this
-// config.php containing the word 'production' (or set the APP_ENV env var), and
-// fill in the real DB credentials in the 'production' block below.
-$env = file_exists(__DIR__ . '/APP_ENV') ? trim((string) file_get_contents(__DIR__ . '/APP_ENV')) : 'local';
+// `local` (XAMPP) | `production` (Hostinger server).
+// On the server, set this to 'production' and fill the DB credentials in the
+// production block below. (An `APP_ENV` file / env var can also be used.)
+$APP_ENV = 'local'; // <<< CHANGE TO 'production' ON THE SERVER
+
+$env = file_exists(__DIR__ . '/APP_ENV') ? trim((string) file_get_contents(__DIR__ . '/APP_ENV')) : $APP_ENV;
 $env = in_array($env, ['local', 'production'], true) ? $env : 'local';
 define('APP_ENV', $env);
 

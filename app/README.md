@@ -71,8 +71,8 @@ Then on the server:
 2. **File Manager**: replace the contents of your `public_html/prathamcarcare/`
    with the repo's `public_html/` contents (index.html, api/, assets/, .htaccess,
    install.php, ...). Do **not** upload the zip or an extra wrapper folder.
-3. **Edit** `public_html/prathamcarcare/api/config.php` (production block):
-   - Create an `APP_ENV` file in `api/` containing exactly one line: `production`
+3. **Edit** `public_html/prathamcarcare/api/config.php`:
+   - Set `$APP_ENV = 'production';` (top of the file) — no separate APP_ENV file needed
    - Fill `db_name` / `db_user` / `db_pass` with your Hostinger MySQL credentials
 4. **Open `https://yourdomain.com/prathamcarcare/install.php` once** — it creates
    the 8 tables + 34 catalog items + settings, then deletes itself.
