@@ -63,6 +63,9 @@ export default function PreviewScreen({ invoice }: { invoice: InvoiceDetail }) {
 
       <View style={styles.toolbar}>
         {msg ? <Text style={styles.msg}>{msg}</Text> : null}
+        <Pressable style={[styles.btn, styles.btnGhost]} onPress={() => reset({ name: 'history' })}>
+          <Text style={styles.btnGhostText}>‹ Back</Text>
+        </Pressable>
         <Pressable style={[styles.btn, styles.btnGhost]} onPress={() => reset({ name: 'billing' })}>
           <Text style={styles.btnGhostText}>New Billing</Text>
         </Pressable>

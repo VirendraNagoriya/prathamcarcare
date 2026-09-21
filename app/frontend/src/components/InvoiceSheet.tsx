@@ -1,4 +1,4 @@
-import { View, Text, StyleSheet } from 'react-native'
+import { View, Text, StyleSheet, useWindowDimensions } from 'react-native'
 import { colors, font } from '../theme'
 import type { InvoiceDetail } from '../api/client'
 import { formatINR, formatDate } from '../utils/format'
@@ -14,19 +14,21 @@ export default function InvoiceSheet({
   invoice: InvoiceDetail
   googleReviewUrl?: string
 }) {
+  const { width } = useWindowDimensions()
+  const narrow = width < 480
   const total = parseFloat(invoice.total_amount) || 0
   const words = invoice.amount_in_words || amountInWords(total)
 
   return (
-    <View nativeID="invoice-print" style={styles.card}>
+    <View nativeID="invoice-print" style={[styles.card, narrow && styles.cardNarrow]}>
       <View style={styles.headerSection}>
-        <View style={styles.logoBox}>
-          <CogLogo size={110} />
+        <View style={[styles.logoBox, narrow && styles.logoBoxNarrow]}>
+          <CogLogo size={narrow ? 72 : 110} />
         </View>
         <View style={styles.companyInfo}>
-          <Text style={styles.mainTitle}>PRATHAM CAR CARE</Text>
-          <Text style={styles.mainSubtitle}>Multibrand Car Service</Text>
-          <Text style={styles.addressText}>
+          <Text style={[styles.mainTitle, narrow && styles.mainTitleNarrow]}>PRATHAM CAR CARE</Text>
+          <Text style={[styles.mainSubtitle, narrow && styles.mainSubtitleNarrow]}>Multibrand Car Service</Text>
+          <Text style={[styles.addressText, narrow && styles.addressTextNarrow]}>
             Address: near Vedant Mangalam, Karvenagar, Pune{'\n'}
             <Text style={styles.addressBold}>Call: 9011560540 / 9665939486</Text>
           </Text>
@@ -34,37 +36,37 @@ export default function InvoiceSheet({
       </View>
 
       <View style={styles.metaGrid}>
-        <View style={styles.metaCell}>
-          <Text style={styles.metaLabel}>M/s.</Text>
-          <Text style={styles.metaValue} numberOfLines={1}>{invoice.owner_name}</Text>
+        <View style={[styles.metaCell, narrow && styles.metaCellNarrow]}>
+          <Text style={[styles.metaLabel, narrow && styles.metaLabelNarrow]}>M/s.</Text>
+          <Text style={styles.metaValue}>{invoice.owner_name}</Text>
         </View>
-        <View style={styles.metaCell}>
-          <Text style={styles.metaLabel}>Mob.:</Text>
+        <View style={[styles.metaCell, narrow && styles.metaCellNarrow]}>
+          <Text style={[styles.metaLabel, narrow && styles.metaLabelNarrow]}>Mob.:</Text>
           <Text style={styles.metaValue}>{invoice.owner_phone}</Text>
         </View>
-        <View style={styles.metaCell}>
-          <Text style={styles.metaLabel}>Car No.</Text>
+        <View style={[styles.metaCell, narrow && styles.metaCellNarrow]}>
+          <Text style={[styles.metaLabel, narrow && styles.metaLabelNarrow]}>Car No.</Text>
           <Text style={styles.metaValue}>{invoice.plate_number}</Text>
         </View>
-        <View style={styles.metaCell}>
-          <Text style={styles.metaLabel}>Bill NO.:</Text>
+        <View style={[styles.metaCell, narrow && styles.metaCellNarrow]}>
+          <Text style={[styles.metaLabel, narrow && styles.metaLabelNarrow]}>Bill NO.:</Text>
           <Text style={[styles.metaValue, styles.metaValueBold]}>{invoice.bill_ref}</Text>
         </View>
-        <View style={styles.metaCell}>
-          <Text style={styles.metaLabel}>Km.:</Text>
+        <View style={[styles.metaCell, narrow && styles.metaCellNarrow]}>
+          <Text style={[styles.metaLabel, narrow && styles.metaLabelNarrow]}>Km.:</Text>
           <Text style={styles.metaValue}>{invoice.km_reading || '—'}</Text>
         </View>
-        <View style={styles.metaCell}>
-          <Text style={styles.metaLabel}>Date:</Text>
+        <View style={[styles.metaCell, narrow && styles.metaCellNarrow]}>
+          <Text style={[styles.metaLabel, narrow && styles.metaLabelNarrow]}>Date:</Text>
           <Text style={styles.metaValue}>{formatDate(invoice.created_at)}</Text>
         </View>
         <View style={[styles.metaCell, styles.metaCellWide]}>
-          <Text style={styles.metaLabel}>Next Servicing Km.</Text>
+          <Text style={[styles.metaLabel, narrow && styles.metaLabelNarrow]}>Next Servicing Km.</Text>
           <Text style={styles.metaValue}>{invoice.next_service_km || '—'}</Text>
         </View>
         {invoice.next_service_date ? (
           <View style={[styles.metaCell, styles.metaCellWide]}>
-            <Text style={styles.metaLabel}>Next Service Date</Text>
+            <Text style={[styles.metaLabel, narrow && styles.metaLabelNarrow]}>Next Service Date</Text>
             <Text style={styles.metaValue}>{invoice.next_service_date}</Text>
           </View>
         ) : null}
@@ -112,14 +114,14 @@ export default function InvoiceSheet({
         </Text>
       </View>
 
-      <View style={styles.signRow}>
-        <View style={styles.sigBlock}>
+      <View style={[styles.signRow, narrow && styles.signRowNarrow]}>
+        <View style={[styles.sigBlock, narrow && styles.sigBlockNarrow]}>
           <View style={styles.sigLine}>
             <Text style={styles.sigText}>Customer's Signature</Text>
           </View>
         </View>
         <Text style={styles.thankYou}>Thank You…!</Text>
-        <View style={styles.sigBlock}>
+        <View style={[styles.sigBlock, narrow && styles.sigBlockNarrow]}>
           <Text style={styles.forText}>For Pratham car care</Text>
           <View style={styles.sigLine}>
             <Text style={styles.sigText}>Proprietor</Text>
@@ -158,6 +160,7 @@ const styles = StyleSheet.create({
     shadowRadius: 25,
     elevation: 2,
   },
+  cardNarrow: { padding: 12, borderRadius: 8 },
   headerSection: {
     flexDirection: 'row',
     alignItems: 'center',
@@ -175,10 +178,14 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
   },
+  logoBoxNarrow: { width: 72, height: 72, marginRight: 10 },
   companyInfo: { flex: 1, alignItems: 'center', justifyContent: 'center' },
   mainTitle: { color: colors.navy, fontSize: font.title, fontWeight: '800', letterSpacing: 0.5, textAlign: 'center' },
+  mainTitleNarrow: { fontSize: 17 },
   mainSubtitle: { fontSize: font.lg, fontWeight: '600', color: colors.slate, marginVertical: 2, textAlign: 'center' },
+  mainSubtitleNarrow: { fontSize: font.sm },
   addressText: { fontSize: font.xs, color: colors.muted, lineHeight: 16, textAlign: 'center' },
+  addressTextNarrow: { fontSize: 10, lineHeight: 14 },
   addressBold: { fontWeight: '800' },
 
   metaGrid: {
@@ -200,9 +207,11 @@ const styles = StyleSheet.create({
     borderBottomWidth: 1,
     borderBottomColor: colors.rowLine,
   },
+  metaCellNarrow: { width: '100%', paddingHorizontal: 10, paddingVertical: 7 },
   metaCellWide: { width: '100%' },
   metaLabel: { fontWeight: '800', color: colors.navy, width: 118, flexShrink: 0, fontSize: font.md },
-  metaValue: { color: '#0f172a', fontWeight: '600', fontSize: font.md, flexShrink: 1 },
+  metaLabelNarrow: { width: 92, fontSize: font.sm },
+  metaValue: { color: '#0f172a', fontWeight: '600', fontSize: font.md, flexShrink: 1, flexWrap: 'wrap' },
   metaValueBold: { fontWeight: '800' },
 
   table: { marginTop: 12 },
@@ -266,11 +275,14 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'flex-end',
+    gap: 12,
   },
+  signRowNarrow: { flexDirection: 'column', alignItems: 'stretch', gap: 16 },
   sigBlock: { textAlign: 'center', width: 160 },
+  sigBlockNarrow: { width: '100%' },
   sigLine: { borderTopWidth: 1, borderTopColor: '#94a3b8', marginTop: 40, paddingTop: 4, alignItems: 'center' },
   sigText: { color: colors.muted, fontSize: font.sm },
-  thankYou: { fontStyle: 'italic', fontWeight: '800', color: colors.navy, fontSize: font.md, paddingBottom: 2 },
+  thankYou: { fontStyle: 'italic', fontWeight: '800', color: colors.navy, fontSize: font.md, paddingBottom: 2, textAlign: 'center', alignSelf: 'center' },
   forText: { fontSize: 10, fontWeight: '800', color: colors.navy, textAlign: 'center' },
   reviewFooter: { marginTop: 20, paddingTop: 10, borderTopWidth: 1, borderTopColor: colors.rowLine },
   reviewText: { fontSize: font.sm, color: colors.muted, textAlign: 'center' },
