@@ -22,8 +22,8 @@ export default function InvoiceSheet({
   return (
     <View nativeID="invoice-print" style={[styles.card, narrow && styles.cardNarrow]}>
       <View style={styles.headerSection}>
-        <View style={[styles.logoBox, narrow && styles.logoBoxNarrow]}>
-          <CogLogo size={narrow ? 72 : 110} />
+        <View style={styles.logoBox}>
+          <CogLogo size={narrow ? 130 : 180} />
         </View>
         <View style={styles.companyInfo}>
           <Text style={[styles.mainTitle, narrow && styles.mainTitleNarrow]}>PRATHAM CAR CARE</Text>
@@ -34,6 +34,8 @@ export default function InvoiceSheet({
           </Text>
         </View>
       </View>
+
+      <View style={styles.headerDivider} />
 
       <View style={styles.metaGrid}>
         <View style={[styles.metaCell, narrow && styles.metaCellNarrow]}>
@@ -146,7 +148,7 @@ export default function InvoiceSheet({
 
 const styles = StyleSheet.create({
   card: {
-    maxWidth: 700,
+    maxWidth: 560,
     width: '100%',
     alignSelf: 'center',
     backgroundColor: colors.card,
@@ -154,39 +156,44 @@ const styles = StyleSheet.create({
     borderColor: colors.line,
     borderRadius: 12,
     padding: 24,
+    minHeight: 794,
     shadowColor: '#000',
     shadowOffset: { width: 0, height: 10 },
     shadowOpacity: 0.05,
     shadowRadius: 25,
     elevation: 2,
   },
-  cardNarrow: { padding: 12, borderRadius: 8 },
+  cardNarrow: { padding: 12, borderRadius: 8, minHeight: 648 },
   headerSection: {
     flexDirection: 'row',
     alignItems: 'center',
     width: '100%',
-    borderBottomWidth: 2,
-    borderBottomColor: colors.navy,
-    paddingBottom: 16,
-    marginBottom: 16,
+    paddingBottom: 18,
+    marginBottom: 18,
   },
   logoBox: {
-    width: 110,
-    height: 110,
-    marginRight: 18,
-    flexShrink: 0,
+    width: '40%',
     alignItems: 'center',
     justifyContent: 'center',
+    borderRightWidth: 1,
+    borderRightColor: colors.rowLine,
+    paddingRight: 12,
+    alignSelf: 'stretch',
   },
-  logoBoxNarrow: { width: 72, height: 72, marginRight: 10 },
-  companyInfo: { flex: 1, alignItems: 'center', justifyContent: 'center' },
-  mainTitle: { color: colors.navy, fontSize: font.title, fontWeight: '800', letterSpacing: 0.5, textAlign: 'center' },
-  mainTitleNarrow: { fontSize: 17 },
-  mainSubtitle: { fontSize: font.lg, fontWeight: '600', color: colors.slate, marginVertical: 2, textAlign: 'center' },
+  companyInfo: { width: '60%', alignItems: 'center', justifyContent: 'center', paddingLeft: 6 },
+  mainTitle: { color: colors.navy, fontSize: 32, fontWeight: '800', letterSpacing: 1, textAlign: 'center' },
+  mainTitleNarrow: { fontSize: 22 },
+  mainSubtitle: { fontSize: font.lg, fontWeight: '600', color: colors.slate, marginVertical: 3, textAlign: 'center' },
   mainSubtitleNarrow: { fontSize: font.sm },
   addressText: { fontSize: font.xs, color: colors.muted, lineHeight: 16, textAlign: 'center' },
   addressTextNarrow: { fontSize: 10, lineHeight: 14 },
   addressBold: { fontWeight: '800' },
+
+  headerDivider: {
+    borderBottomWidth: 2,
+    borderBottomColor: colors.navy,
+    marginBottom: 16,
+  },
 
   metaGrid: {
     flexDirection: 'row',

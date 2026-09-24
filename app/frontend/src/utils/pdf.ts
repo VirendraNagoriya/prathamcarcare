@@ -3,14 +3,14 @@ import html2canvas from 'html2canvas'
 import type { InvoiceDetail } from '../api/client'
 
 const INVOICE_ID = 'invoice-print'
-const A4_WIDTH = 595.28
-const A4_HEIGHT = 841.89
+const A5_WIDTH = 419.53
+const A5_HEIGHT = 595.28
 const MARGIN = 16
 
-// Render the bill at fixed A4@96dpi width (794px) then oversample it,
-// so the shared PDF is sharp even on phones whose screens are narrower.
-const CLONE_WIDTH_PX = 794
-const RENDER_SCALE = 2.5
+// Render the bill at fixed A5@96dpi width (559px) then oversample it heavily,
+// so the shared PDF stays HD even on phones whose screens are narrower.
+const CLONE_WIDTH_PX = 559
+const RENDER_SCALE = 5
 
 function toSvgDataUrl(svg: SVGSVGElement): string {
   const xml = new XMLSerializer().serializeToString(svg)
@@ -30,6 +30,22 @@ function svgToImages(container: HTMLElement): void {
     img.alt = ''
     svg.parentNode?.replaceChild(img, svg)
   }
+}
+
+// Make sure every image in the clone is fully decoded before capture,
+// otherwise html2canvas can snapshot a half-loaded/blurry logo.
+function preloadImages(container: HTMLElement): Promise<void> {
+  const imgs = Array.from(container.querySelectorAll('img'))
+  return Promise.all(
+    imgs.map((img) => {
+      if (img.complete && img.naturalWidth > 0) return Promise.resolve()
+      return new Promise<void>((resolve) => {
+        img.onload = () => resolve()
+        img.onerror = () => resolve()
+        setTimeout(resolve, 4000)
+      })
+    }),
+  ).then(() => undefined)
 }
 
 function getInvoiceElement(): HTMLElement {
@@ -53,13 +69,24 @@ async function renderSheet(): Promise<HTMLCanvasElement> {
   document.body.appendChild(clone)
   try {
     svgToImages(clone)
-    const canvas = await html2canvas(clone, {
+    await preloadImages(clone)
+    // Provide our own canvas whose context uses high-quality image smoothing,
+    // so downscaled raster images (e.g. the large logo) stay sharp in the PDF.
+    const canvas = document.createElement('canvas')
+    const ctx = canvas.getContext('2d')
+    if (ctx) {
+      ctx.imageSmoothingEnabled = true
+      ctx.imageSmoothingQuality = 'high'
+    }
+    await html2canvas(clone, {
+      canvas,
       scale: RENDER_SCALE,
       backgroundColor: '#ffffff',
       logging: false,
       useCORS: true,
       width: CLONE_WIDTH_PX,
       windowWidth: CLONE_WIDTH_PX,
+      imageTimeout: 20000,
     })
     return canvas
   } finally {
@@ -75,21 +102,21 @@ export function billPdfFileName(invoice: InvoiceDetail): string {
 export async function makeBillPdfBlob(): Promise<Blob> {
   const canvas = await renderSheet()
 
-  const contentW = A4_WIDTH - MARGIN * 2
+  const contentW = A5_WIDTH - MARGIN * 2
   const scale = contentW / canvas.width
   const contentH = canvas.height * scale
-  const pages = Math.max(1, Math.ceil(contentH / (A4_HEIGHT - MARGIN * 2)))
-  const pageH = Math.min(contentH, A4_HEIGHT - MARGIN * 2)
+  const pages = Math.max(1, Math.ceil(contentH / (A5_HEIGHT - MARGIN * 2)))
+  const pageH = Math.min(contentH, A5_HEIGHT - MARGIN * 2)
 
-  const pdf = new jsPDF({ unit: 'pt', format: 'a4', orientation: 'portrait', compress: true })
+  const pdf = new jsPDF({ unit: 'pt', format: 'a5', orientation: 'portrait', compress: true })
   const imgData = canvas.toDataURL('image/png')
 
   if (pages === 1) {
-    pdf.addImage(imgData, 'PNG', MARGIN, MARGIN, contentW, contentH, undefined, 'FAST')
+    pdf.addImage(imgData, 'PNG', MARGIN, MARGIN, contentW, contentH, undefined, 'SLOW')
   } else {
     const partH = canvas.height / pages
     for (let p = 0; p < pages; p++) {
-      if (p > 0) pdf.addPage('a4', 'portrait')
+      if (p > 0) pdf.addPage('a5', 'portrait')
       const part = document.createElement('canvas')
       part.width = canvas.width
       part.height = Math.ceil(partH)
@@ -98,7 +125,7 @@ export async function makeBillPdfBlob(): Promise<Blob> {
       ctx.fillStyle = '#ffffff'
       ctx.fillRect(0, 0, part.width, part.height)
       ctx.drawImage(canvas, 0, p * partH, canvas.width, partH, 0, 0, canvas.width, partH)
-      pdf.addImage(part.toDataURL('image/png'), 'PNG', MARGIN, MARGIN, contentW, pageH, undefined, 'FAST')
+      pdf.addImage(part.toDataURL('image/png'), 'PNG', MARGIN, MARGIN, contentW, pageH, undefined, 'SLOW')
     }
   }
 

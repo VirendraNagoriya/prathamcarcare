@@ -47,6 +47,11 @@ input, textarea, select {
   }
 }
 
+@page {
+  size: A5 portrait;
+  margin: 0;
+}
+
 @media print {
   body * {
     visibility: hidden;
@@ -59,8 +64,9 @@ input, textarea, select {
     position: absolute;
     left: 0;
     top: 0;
-    width: 100%;
-    padding: 10px;
+    width: 148mm;
+    min-height: 210mm;
+    padding: 10mm;
   }
   .no-print {
     display: none !important;

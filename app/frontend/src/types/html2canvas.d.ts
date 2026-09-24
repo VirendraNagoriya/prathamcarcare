@@ -8,6 +8,8 @@ declare module 'html2canvas' {
     height?: number
     windowWidth?: number
     windowHeight?: number
+    imageTimeout?: number
+    canvas?: HTMLCanvasElement
     onclone?: (doc: Document) => void
   }
 
