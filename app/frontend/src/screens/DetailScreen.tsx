@@ -13,7 +13,7 @@ const RESULT_MSG: Record<string, string> = {
 }
 
 export default function DetailScreen({ id }: { id: number }) {
-  const { push } = useNav()
+  const { push, pop } = useNav()
   const { width } = useWindowDimensions()
   const narrow = width < 560
   const [invoice, setInvoice] = useState<InvoiceDetail | null>(null)
@@ -31,7 +31,7 @@ export default function DetailScreen({ id }: { id: number }) {
     return (
       <View style={styles.center}>
         <Text style={styles.error}>{error}</Text>
-        <Pressable style={styles.goBtn} onPress={() => push({ name: 'history' })}>
+        <Pressable style={styles.goBtn} onPress={() => pop()}>
           <Text style={styles.goBtnText}>‹ Back to History</Text>
         </Pressable>
       </View>

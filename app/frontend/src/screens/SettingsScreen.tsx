@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react'
-import { Text, TextInput, Pressable, ScrollView, StyleSheet } from 'react-native'
+import { Text, TextInput, Pressable, ScrollView, StyleSheet, Switch, View } from 'react-native'
 import { colors, font } from '../theme'
 import { api, type Settings } from '../api/client'
 
@@ -8,6 +8,13 @@ export default function SettingsScreen() {
   const [shopPhone, setShopPhone] = useState('')
   const [placeId, setPlaceId] = useState('')
   const [reminderDays, setReminderDays] = useState('3')
+  const [gstEnabled, setGstEnabled] = useState(false)
+  const [companyName, setCompanyName] = useState('')
+  const [companyAddress, setCompanyAddress] = useState('')
+  const [companyPhone, setCompanyPhone] = useState('')
+  const [companyEmail, setCompanyEmail] = useState('')
+  const [companyGstin, setCompanyGstin] = useState('')
+  const [companyPan, setCompanyPan] = useState('')
   const [oldPin, setOldPin] = useState('')
   const [newPin, setNewPin] = useState('')
   const [confirmPin, setConfirmPin] = useState('')
@@ -21,6 +28,13 @@ export default function SettingsScreen() {
       setShopPhone(s.shop_phone)
       setPlaceId(s.google_place_id)
       setReminderDays(String(s.reminder_days_before ?? 3))
+      setGstEnabled(s.gst_enabled ?? false)
+      setCompanyName(s.company_name ?? '')
+      setCompanyAddress(s.company_address ?? '')
+      setCompanyPhone(s.company_phone ?? '')
+      setCompanyEmail(s.company_email ?? '')
+      setCompanyGstin(s.company_gstin ?? '')
+      setCompanyPan(s.company_pan ?? '')
     }).catch(() => undefined)
   }, [])
 
@@ -33,6 +47,13 @@ export default function SettingsScreen() {
         shop_phone: shopPhone,
         google_place_id: placeId,
         reminder_days_before: Math.max(1, Math.min(30, parseInt(reminderDays, 10) || 3)),
+        gst_enabled: gstEnabled,
+        company_name: companyName,
+        company_address: companyAddress,
+        company_phone: companyPhone,
+        company_email: companyEmail,
+        company_gstin: companyGstin,
+        company_pan: companyPan,
       })
       setSettings(updated)
       setMessage('Settings saved.')
@@ -65,14 +86,14 @@ export default function SettingsScreen() {
     }
   }
 
-  return (
+return (
     <ScrollView style={styles.flex} contentContainerStyle={styles.content}>
       <Text style={styles.heading}>Settings</Text>
       {settings && <Text style={styles.appName}>App: {settings.app_name}</Text>}
 
       <Text style={styles.sectionLabel}>Shop & Billing</Text>
       <Text style={styles.hint}>
-        The Google Review link on printed bills uses this Place ID. Add it here (or use “YOUR_PLACE_ID” as a harmless
+        The Google Review link on printed bills uses this Place ID. Add it here (or use "YOUR_PLACE_ID" as a harmless
         placeholder).
       </Text>
       <TextInput style={styles.input} value={shopPhone} onChangeText={setShopPhone} placeholder="WhatsApp / shop phone" placeholderTextColor={colors.muted} keyboardType="phone-pad" />
@@ -82,7 +103,29 @@ export default function SettingsScreen() {
       <Text style={styles.hint}>
         Send WhatsApp reminders to customers before their service date. Set how many days before to show the reminder.
       </Text>
-      <TextInput style={styles.input} value={reminderDays} onChangeText={setReminderDays} placeholder="Days before service (1–30)" placeholderTextColor={colors.muted} keyboardType="number-pad" />
+      <TextInput style={styles.input} value={reminderDays} onChangeText={setReminderDays} placeholder="Days before service (1-30)" placeholderTextColor={colors.muted} keyboardType="number-pad" />
+
+      <Text style={styles.sectionLabel}>Company Details</Text>
+      <TextInput style={styles.input} value={companyName} onChangeText={setCompanyName} placeholder="Company Name" placeholderTextColor={colors.muted} />
+      <TextInput style={styles.input} value={companyAddress} onChangeText={setCompanyAddress} placeholder="Company Address" placeholderTextColor={colors.muted} multiline numberOfLines={3} />
+      <TextInput style={styles.input} value={companyPhone} onChangeText={setCompanyPhone} placeholder="Company Phone" placeholderTextColor={colors.muted} keyboardType="phone-pad" />
+      <TextInput style={styles.input} value={companyEmail} onChangeText={setCompanyEmail} placeholder="Company Email" placeholderTextColor={colors.muted} autoCapitalize="none" keyboardType="email-address" />
+      <TextInput style={styles.input} value={companyGstin} onChangeText={setCompanyGstin} placeholder="GSTIN" placeholderTextColor={colors.muted} autoCapitalize="characters" />
+      <TextInput style={styles.input} value={companyPan} onChangeText={setCompanyPan} placeholder="PAN" placeholderTextColor={colors.muted} autoCapitalize="characters" />
+
+      <Text style={styles.sectionLabel}>GST Settings</Text>
+      <View style={styles.toggleRow}>
+        <Text style={styles.toggleLabel}>Enable GST on Invoices</Text>
+        <Switch
+          value={gstEnabled}
+          onValueChange={setGstEnabled}
+          trackColor={{ false: colors.line, true: colors.navy }}
+          thumbColor={gstEnabled ? colors.navy : colors.muted}
+        />
+      </View>
+      <Text style={styles.hint}>
+        When enabled, invoices will include CGST/SGST tax breakdown. When disabled, invoices show simple amounts without tax.
+      </Text>
 
       <Pressable style={styles.btn} onPress={saveGeneral} disabled={busy}>
         <Text style={styles.btnText}>Save Shop Settings</Text>
@@ -128,6 +171,8 @@ const styles = StyleSheet.create({
     marginBottom: 10,
     backgroundColor: colors.card,
   },
+  toggleRow: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginVertical: 8 },
+  toggleLabel: { fontSize: font.md, fontWeight: '600', color: colors.ink },
   btn: { backgroundColor: colors.navy, borderRadius: 10, paddingVertical: 13, alignItems: 'center', marginTop: 4 },
   btnText: { color: '#ffffff', fontWeight: '800', fontSize: font.md },
   error: { color: colors.danger, fontWeight: '600', fontSize: font.sm, marginTop: 12, textAlign: 'center' },

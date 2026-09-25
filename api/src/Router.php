@@ -41,11 +41,19 @@ final class Router
     {
         $path = (string) parse_url($_SERVER['REQUEST_URI'] ?? '/', PHP_URL_PATH);
 
-        // The app may be installed in a subdirectory (e.g. /prathamcarcare).
-        // Routes are registered relative to the app root (/api/...), so strip
-        // that prefix before matching. Works at web root too (base = '').
+        // Dev-only 'php -S localhost:8080 dev_router.php': SCRIPT_NAME is the
+        // requested path itself (e.g. '/api/login') and there is no install
+        // subdirectory, so match routes as-is.
         $script = str_replace('\\', '/', $_SERVER['SCRIPT_NAME'] ?? '');
-        $base   = (string) preg_replace('#/api/index\.php$#', '', $script);
+        if ($script !== '' && $script === $path) {
+            $path = rtrim($path, '/');
+            return $path === '' ? '/' : $path;
+        }
+
+        // Production (Apache/FPM): the app may be installed in a subdirectory
+        // (e.g. /prathamcarcare/api/index.php). Routes are registered relative
+        // to the app root (/api/...), so strip that prefix before matching.
+        $base = (string) preg_replace('#/api/index\.php$#', '', $script);
 
         if ($base === '' && ($pos = strpos($path, '/api/')) !== false) {
             $base = substr($path, 0, $pos);

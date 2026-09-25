@@ -1,27 +1,35 @@
 import type { InvoiceDetail, Settings } from '../api/client'
-import { makeBillPdfBlob, billPdfFileName, downloadBlob } from './pdf'
+import { generateInvoicePDF, billPdfFileName, downloadBlob } from './pdf'
 import { openWhatsApp, buildBillShareMessage } from './whatsapp'
+import { api } from '../api/client'
 
 export type PdfSendResult = 'direct' | 'downloaded' | 'no-phone'
+
+async function getSettings(): Promise<Settings | undefined> {
+  try {
+    return await api.getSettings()
+  } catch {
+    return undefined
+  }
+}
 
 export async function sendBillPdfToCustomer(
   invoice: InvoiceDetail,
   settings?: Settings,
 ): Promise<PdfSendResult> {
-  const blob = await makeBillPdfBlob()
+  const s = settings ?? await getSettings()
+  const blob = await generateInvoicePDF(invoice, s)
   const fileName = billPdfFileName(invoice)
 
   if (!invoice.owner_phone) return 'no-phone'
 
-  // WhatsApp does not allow attaching a file to a specific number via URL,
-  // so: open the chat directly with the customer's number + written message
-  // (with Google review link), and save the PDF locally to attach in that chat.
   downloadBlob(blob, fileName)
-  openWhatsApp(invoice.owner_phone, buildBillShareMessage(invoice, settings))
+  openWhatsApp(invoice.owner_phone, buildBillShareMessage(invoice, s))
   return 'direct'
 }
 
 export async function downloadBillPdf(invoice: InvoiceDetail): Promise<void> {
-  const blob = await makeBillPdfBlob()
+  const s = await getSettings()
+  const blob = await generateInvoicePDF(invoice, s)
   downloadBlob(blob, billPdfFileName(invoice))
 }

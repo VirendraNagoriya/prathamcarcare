@@ -31,7 +31,7 @@ function db(): PDO
 function settings_row(?PDO $pdo = null): array
 {
     $pdo = $pdo ?? db();
-    $row = $pdo->query('SELECT app_name, shop_phone, google_place_id, reminder_days_before, pin_hash FROM settings WHERE id = 1')->fetch();
+    $row = $pdo->query('SELECT * FROM settings WHERE id = 1')->fetch();
     if (!$row) {
         throw new RuntimeException('Missing settings row. Run db/seed.sql first.');
     }

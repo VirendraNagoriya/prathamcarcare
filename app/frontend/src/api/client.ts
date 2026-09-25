@@ -76,6 +76,13 @@ export interface Settings {
   shop_phone: string
   google_place_id: string
   reminder_days_before: number
+  gst_enabled: boolean
+  company_name: string
+  company_address: string
+  company_phone: string
+  company_email: string
+  company_gstin: string
+  company_pan: string
 }
 
 export interface ReminderItem {
@@ -154,9 +161,12 @@ export const api = {
   updateInvoice: (id: number, data: InvoiceInput) =>
     request<{ id: number; bill_ref: string; total: number; vehicle_id: number }>(`/api/invoices/${id}`, { method: 'PUT', body: JSON.stringify(data) }),
 
-  invoiceHistory: (q = '', offset = 0) => {
-    const params = new URLSearchParams({ offset: String(offset) })
-    if (q.trim()) params.set('q', q.trim())
+  invoiceHistory: (options: { q?: string; from?: string; to?: string; month?: string; offset?: number } = {}) => {
+    const params = new URLSearchParams({ offset: String(options.offset ?? 0) })
+    if (options.q?.trim()) params.set('q', options.q.trim())
+    if (options.from) params.set('from', options.from)
+    if (options.to) params.set('to', options.to)
+    if (options.month) params.set('month', options.month)
     return request<{ invoices: InvoiceListItem[]; total: number }>(`/api/invoices?${params.toString()}`)
   },
 
@@ -164,8 +174,20 @@ export const api = {
 
   getSettings: () => request<Settings>('/api/settings'),
 
-  updateSettings: (data: { new_pin?: string; old_pin?: string; shop_phone?: string; google_place_id?: string; reminder_days_before?: number }) =>
-    request<Settings>('/api/settings', { method: 'PUT', body: JSON.stringify(data) }),
+  updateSettings: (data: {
+    new_pin?: string
+    old_pin?: string
+    shop_phone?: string
+    google_place_id?: string
+    reminder_days_before?: number
+    gst_enabled?: boolean
+    company_name?: string
+    company_address?: string
+    company_phone?: string
+    company_email?: string
+    company_gstin?: string
+    company_pan?: string
+  }) => request<Settings>('/api/settings', { method: 'PUT', body: JSON.stringify(data) }),
 
   getReminders: () => request<{ reminders: ReminderItem[] }>('/api/reminders'),
 

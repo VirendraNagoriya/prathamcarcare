@@ -14,7 +14,7 @@ const RESULT_MSG: Record<string, string> = {
 }
 
 export default function PreviewScreen({ invoice }: { invoice: InvoiceDetail }) {
-  const { reset } = useNav()
+  const { pop, replace } = useNav()
   const [settings, setSettings] = useState<Settings | null>(null)
   const [msg, setMsg] = useState<string | null>(null)
   const [busy, setBusy] = useState(false)
@@ -63,10 +63,10 @@ export default function PreviewScreen({ invoice }: { invoice: InvoiceDetail }) {
 
       <View style={styles.toolbar}>
         {msg ? <Text style={styles.msg}>{msg}</Text> : null}
-        <Pressable style={[styles.btn, styles.btnGhost]} onPress={() => reset({ name: 'history' })}>
+        <Pressable style={[styles.btn, styles.btnGhost]} onPress={() => pop()}>
           <Text style={styles.btnGhostText}>‹ Back</Text>
         </Pressable>
-        <Pressable style={[styles.btn, styles.btnGhost]} onPress={() => reset({ name: 'billing' })}>
+        <Pressable style={[styles.btn, styles.btnGhost]} onPress={() => replace({ name: 'billing' })}>
           <Text style={styles.btnGhostText}>New Billing</Text>
         </Pressable>
         <Pressable style={[styles.btn, styles.btnGreen]} onPress={() => void sendPdf()}>

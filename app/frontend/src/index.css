@@ -48,7 +48,7 @@ input, textarea, select {
 }
 
 @page {
-  size: A5 portrait;
+  size: A4 portrait;
   margin: 0;
 }
 
@@ -64,8 +64,8 @@ input, textarea, select {
     position: absolute;
     left: 0;
     top: 0;
-    width: 148mm;
-    min-height: 210mm;
+    width: 210mm;
+    min-height: 297mm;
     padding: 10mm;
   }
   .no-print {

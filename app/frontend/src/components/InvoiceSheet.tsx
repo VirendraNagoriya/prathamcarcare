@@ -1,4 +1,4 @@
-import { View, Text, StyleSheet, useWindowDimensions } from 'react-native'
+﻿import { View, Text, StyleSheet, useWindowDimensions } from 'react-native'
 import { colors, font } from '../theme'
 import type { InvoiceDetail } from '../api/client'
 import { formatINR, formatDate } from '../utils/format'
@@ -56,7 +56,7 @@ export default function InvoiceSheet({
         </View>
         <View style={[styles.metaCell, narrow && styles.metaCellNarrow]}>
           <Text style={[styles.metaLabel, narrow && styles.metaLabelNarrow]}>Km.:</Text>
-          <Text style={styles.metaValue}>{invoice.km_reading || '—'}</Text>
+          <Text style={styles.metaValue}>{invoice.km_reading || 'ΓÇö'}</Text>
         </View>
         <View style={[styles.metaCell, narrow && styles.metaCellNarrow]}>
           <Text style={[styles.metaLabel, narrow && styles.metaLabelNarrow]}>Date:</Text>
@@ -64,7 +64,7 @@ export default function InvoiceSheet({
         </View>
         <View style={[styles.metaCell, styles.metaCellWide]}>
           <Text style={[styles.metaLabel, narrow && styles.metaLabelNarrow]}>Next Servicing Km.</Text>
-          <Text style={styles.metaValue}>{invoice.next_service_km || '—'}</Text>
+          <Text style={styles.metaValue}>{invoice.next_service_km || 'ΓÇö'}</Text>
         </View>
         {invoice.next_service_date ? (
           <View style={[styles.metaCell, styles.metaCellWide]}>
@@ -122,7 +122,7 @@ export default function InvoiceSheet({
             <Text style={styles.sigText}>Customer's Signature</Text>
           </View>
         </View>
-        <Text style={styles.thankYou}>Thank You…!</Text>
+        <Text style={styles.thankYou}>Thank you!</Text>
         <View style={[styles.sigBlock, narrow && styles.sigBlockNarrow]}>
           <Text style={styles.forText}>For Pratham car care</Text>
           <View style={styles.sigLine}>

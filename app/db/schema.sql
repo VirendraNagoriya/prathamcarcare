@@ -45,7 +45,14 @@ CREATE TABLE IF NOT EXISTS settings (
   google_place_id VARCHAR(255) NOT NULL DEFAULT '',
   reminder_days_before INT NOT NULL DEFAULT 3,
   pin_hash VARCHAR(255) NOT NULL,
-  pin_changed_at TIMESTAMP NULL DEFAULT NULL
+  pin_changed_at TIMESTAMP NULL DEFAULT NULL,
+  gst_enabled TINYINT(1) NOT NULL DEFAULT 0,
+  company_name VARCHAR(255) NOT NULL DEFAULT '',
+  company_address VARCHAR(255) NOT NULL DEFAULT '',
+  company_phone VARCHAR(20) NOT NULL DEFAULT '',
+  company_email VARCHAR(255) NOT NULL DEFAULT '',
+  company_gstin VARCHAR(20) NOT NULL DEFAULT '',
+  company_pan VARCHAR(20) NOT NULL DEFAULT ''
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
 CREATE TABLE IF NOT EXISTS login_attempts (

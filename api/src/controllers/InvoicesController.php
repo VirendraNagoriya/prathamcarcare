@@ -234,6 +234,9 @@ final class InvoicesController
     public function list(): void
     {
         $q      = trim((string) ($_GET['q'] ?? ''));
+        $from   = trim((string) ($_GET['from'] ?? ''));
+        $to     = trim((string) ($_GET['to'] ?? ''));
+        $month  = trim((string) ($_GET['month'] ?? ''));
         $limit  = (int) ($_GET['limit'] ?? 50);
         $offset = (int) ($_GET['offset'] ?? 0);
         if ($limit < 1) $limit = 50;
@@ -246,10 +249,35 @@ final class InvoicesController
 
         $where  = '';
         $params = [];
+
+        $conds = [];
         if ($q !== '') {
-            $where = ' WHERE (v.plate_number LIKE :q1 OR v.owner_name LIKE :q2 OR v.owner_phone LIKE :q3)';
-            $like  = "%{$q}%";
-            $params = [':q1' => $like, ':q2' => $like, ':q3' => $like];
+            $conds[] = '(v.plate_number LIKE :q1 OR v.owner_name LIKE :q2 OR v.owner_phone LIKE :q3)';
+            $like    = "%{$q}%";
+            $params[':q1'] = $like;
+            $params[':q2'] = $like;
+            $params[':q3'] = $like;
+        }
+
+        if ($month !== '') {
+            // Month scope overrides from/to
+            if (preg_match('/^\d{4}-\d{2}$/', $month)) {
+                $conds[] = 'DATE_FORMAT(inv.created_at, \'%Y-%m\') = :month';
+                $params[':month'] = $month;
+            }
+        } else {
+            if ($from !== '' && preg_match('/^\d{4}-\d{2}-\d{2}$/', $from)) {
+                $conds[] = 'inv.created_at >= :frm';
+                $params[':frm'] = $from . ' 00:00:00';
+            }
+            if ($to !== '' && preg_match('/^\d{4}-\d{2}-\d{2}$/', $to)) {
+                $conds[] = 'inv.created_at <= :to';
+                $params[':to'] = $to . ' 23:59:59';
+            }
+        }
+
+        if ($conds !== []) {
+            $where = ' WHERE ' . implode(' AND ', $conds);
         }
 
         $pdo = db();

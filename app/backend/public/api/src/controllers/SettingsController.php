@@ -42,6 +42,34 @@ final class SettingsController
             $fields[]   = 'reminder_days_before = :rdb';
             $bindings[':rdb'] = $days;
         }
+        if (array_key_exists('gst_enabled', $body)) {
+            $fields[]   = 'gst_enabled = :gst';
+            $bindings[':gst'] = !empty($body['gst_enabled']) ? 1 : 0;
+        }
+        if (array_key_exists('company_name', $body)) {
+            $fields[]   = 'company_name = :cname';
+            $bindings[':cname'] = (string) $body['company_name'];
+        }
+        if (array_key_exists('company_address', $body)) {
+            $fields[]   = 'company_address = :caddr';
+            $bindings[':caddr'] = (string) $body['company_address'];
+        }
+        if (array_key_exists('company_phone', $body)) {
+            $fields[]   = 'company_phone = :cphone';
+            $bindings[':cphone'] = (string) $body['company_phone'];
+        }
+        if (array_key_exists('company_email', $body)) {
+            $fields[]   = 'company_email = :cemail';
+            $bindings[':cemail'] = (string) $body['company_email'];
+        }
+        if (array_key_exists('company_gstin', $body)) {
+            $fields[]   = 'company_gstin = :cgstin';
+            $bindings[':cgstin'] = (string) $body['company_gstin'];
+        }
+        if (array_key_exists('company_pan', $body)) {
+            $fields[]   = 'company_pan = :cpan';
+            $bindings[':cpan'] = (string) $body['company_pan'];
+        }
 
         if (array_key_exists('new_pin', $body) || array_key_exists('pin', $body)) {
             $oldPin = (string) ($body['old_pin'] ?? '');

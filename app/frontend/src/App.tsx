@@ -18,7 +18,7 @@ import ExpensesScreen from './screens/ExpensesScreen'
 import { NavProvider, useNav } from './nav'
 
 function ScreenHost() {
-  const { stack, current, pop, reset } = useNav()
+  const { stack, current, pop, reset, push } = useNav()
   const [authed, setAuthed] = useState<boolean | null>(null)
 
   useEffect(() => {
@@ -75,7 +75,7 @@ function ScreenHost() {
             existing={current.vehicle}
             editId={current.editId}
             onCancel={() => reset({ name: 'dashboard' })}
-            onPreview={(invoice) => reset({ name: 'preview', invoice })}
+            onPreview={(invoice) => push({ name: 'preview', invoice })}
           />
         )}
         {current.name === 'preview' && <PreviewScreen invoice={current.invoice} />}
