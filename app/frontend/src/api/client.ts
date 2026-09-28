@@ -172,6 +172,9 @@ export const api = {
 
   getInvoice: (id: number) => request<InvoiceDetail>(`/api/invoices/${id}`),
 
+  deleteInvoice: (id: number) =>
+    request<{ ok: boolean }>(`/api/invoices/${id}`, { method: 'DELETE' }),
+
   getSettings: () => request<Settings>('/api/settings'),
 
   updateSettings: (data: {

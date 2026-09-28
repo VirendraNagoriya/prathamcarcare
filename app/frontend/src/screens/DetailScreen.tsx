@@ -3,6 +3,7 @@ import { View, Text, Pressable, ScrollView, StyleSheet, useWindowDimensions } fr
 import { colors, font } from '../theme'
 import { api, type InvoiceDetail, type Settings } from '../api/client'
 import InvoiceSheet from '../components/InvoiceSheet'
+import ConfirmDialog from '../components/ConfirmDialog'
 import { useNav } from '../nav'
 import { sendBillPdfToCustomer, downloadBillPdf } from '../utils/sendPdf'
 
@@ -21,6 +22,8 @@ export default function DetailScreen({ id }: { id: number }) {
   const [error, setError] = useState('')
   const [msg, setMsg] = useState('')
   const [busy, setBusy] = useState(false)
+  const [confirmOpen, setConfirmOpen] = useState(false)
+  const [deleting, setDeleting] = useState(false)
 
   useEffect(() => {
     api.getInvoice(id).then(setInvoice).catch((e) => setError(e instanceof Error ? e.message : 'Loading failed'))
@@ -78,6 +81,20 @@ export default function DetailScreen({ id }: { id: number }) {
     }
   }
 
+  const confirmDelete = async () => {
+    if (deleting) return
+    setDeleting(true)
+    setMsg('')
+    try {
+      await api.deleteInvoice(id)
+      setConfirmOpen(false)
+      pop()
+    } catch (e) {
+      setMsg(e instanceof Error ? e.message : 'Could not delete the bill.')
+      setDeleting(false)
+    }
+  }
+
   return (
     <View style={styles.flex}>
       <ScrollView style={styles.flex} contentContainerStyle={styles.content}>
@@ -98,8 +115,21 @@ export default function DetailScreen({ id }: { id: number }) {
           <Pressable style={[styles.btn, styles.btnNavy]} onPress={() => window.print()}>
             <Text style={styles.btnText}>🖨 Print</Text>
           </Pressable>
+          <Pressable style={[styles.btn, styles.btnDanger]} onPress={() => setConfirmOpen(true)}>
+            <Text style={styles.btnText}>🗑 Delete</Text>
+          </Pressable>
         </View>
       </View>
+
+      <ConfirmDialog
+        visible={confirmOpen}
+        title="Delete this bill?"
+        message={`Bill No. ${invoice.bill_ref} (${invoice.owner_name || invoice.plate_number}) will be permanently deleted. This cannot be undone.`}
+        confirmText="Delete bill"
+        busy={deleting}
+        onConfirm={() => void confirmDelete()}
+        onCancel={() => setConfirmOpen(false)}
+      />
     </View>
   )
 }
@@ -121,6 +151,7 @@ const styles = StyleSheet.create({
   btnNavy: { backgroundColor: colors.navy },
   btnGreen: { backgroundColor: '#25d366' },
   btnEdit: { backgroundColor: colors.blue },
+  btnDanger: { backgroundColor: colors.danger },
   btnGhost: { backgroundColor: colors.card, borderWidth: 1.5, borderColor: colors.navy },
   btnText: { color: '#ffffff', fontWeight: '800', fontSize: font.lg },
   btnTextSmall: { fontSize: font.md },

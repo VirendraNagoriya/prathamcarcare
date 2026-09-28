@@ -21,7 +21,7 @@ if (in_array($origin, ALLOWED_ORIGINS, true)) {
     header('Access-Control-Allow-Credentials: true');
 }
 header('Access-Control-Allow-Headers: Content-Type');
-header('Access-Control-Allow-Methods: GET, POST, PUT, OPTIONS');
+header('Access-Control-Allow-Methods: GET, POST, PUT, DELETE, OPTIONS');
 
 if (($_SERVER['REQUEST_METHOD'] ?? 'GET') === 'OPTIONS') {
     http_response_code(204);
@@ -122,6 +122,10 @@ $router->add('GET',  '/api/invoices',   static function () use ($invoices): void
 $router->add('PUT',  '/api/invoices/{id}', static function (array $args) use ($invoices): void {
     require_auth();
     $invoices->update($args);
+});
+$router->add('DELETE', '/api/invoices/{id}', static function (array $args) use ($invoices): void {
+    require_auth();
+    $invoices->delete($args);
 });
 $router->add('GET',  '/api/invoices/{id}', static function (array $args) use ($invoices): void {
     require_auth();

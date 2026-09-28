@@ -332,4 +332,29 @@ final class InvoicesController
 
         json_response($row);
     }
+
+    public function delete(array $args): void
+    {
+        $id = (int) $args[0];
+        if ($id <= 0) json_error('Invalid invoice id', 422);
+
+        $pdo = db();
+        $existing = $pdo->prepare('SELECT id FROM invoices WHERE id = :id');
+        $existing->execute([':id' => $id]);
+        if (!$existing->fetch()) json_error('Invoice not found', 404);
+
+        $pdo->beginTransaction();
+        try {
+            // invoice_items + reminder_log reference invoices with ON DELETE CASCADE,
+            // so deleting the invoice cleans up its line items and reminders too.
+            $pdo->prepare('DELETE FROM invoices WHERE id = :id')->execute([':id' => $id]);
+            $pdo->commit();
+        } catch (\Throwable $e) {
+            $pdo->rollBack();
+            log_error('Invoice delete failed: ' . $e->getMessage());
+            json_error(APP_ENV === 'production' ? 'Failed to delete invoice. Please try again.' : 'Failed to delete invoice: ' . $e->getMessage(), 500);
+        }
+
+        json_response(['ok' => true]);
+    }
 }
