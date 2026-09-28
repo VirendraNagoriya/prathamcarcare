@@ -172,12 +172,15 @@ function drawDetailBox(
   startY: number,
 ): number {
   const cols = 2
-  const rowGap = 3
-  const labelH = 13
-  const valueFont = 9.5
-  const lineH = 12
-  const cellPad = 8
   const colW = CONTENT_WIDTH / cols
+  const padX = 8
+  const padY = 7
+  const labelFont = 8.5
+  const valueFont = 9.5
+  const labelLineH = 10
+  const valueLineH = 11
+  const labelValueGap = 2
+  const minRowH = 30
 
   const boxX = MARGIN
   const boxW = CONTENT_WIDTH
@@ -187,22 +190,22 @@ function drawDetailBox(
     return Array.isArray(lines) && lines.length > 0 ? lines : ['']
   }
 
-  // Compute cell heights (label + up to 2 wrapped value lines)
+  const textW = colW - padX * 2
+
+  // Wrap every label/value (no truncation) and compute row heights
+  const pairRows: { label: string[]; value: string[] }[][] = []
   const rowHeights: number[] = []
-  let pairs = 0
   for (let i = 0; i < rows.length; i += cols) {
+    const chunk = rows.slice(i, i + cols).map((c) => ({ label: wrap(c.label, textW), value: wrap(c.value, textW) }))
+    pairRows.push(chunk)
     let maxCellH = 0
-    const chunk = rows.slice(i, i + cols)
-    chunk.forEach((c) => {
-      const valueLines = wrap(c.value, colW - cellPad * 2)
-      const linesToDraw = Math.min(valueLines.length, 2)
-      const cellH = labelH + linesToDraw * lineH + 8
+    chunk.forEach((cell) => {
+      const cellH = padY * 2 + cell.label.length * labelLineH + (cell.value.length > 0 ? labelValueGap + cell.value.length * valueLineH : 0)
       maxCellH = Math.max(maxCellH, cellH)
     })
-    rowHeights.push(maxCellH)
-    pairs++
+    rowHeights.push(Math.max(minRowH, maxCellH))
   }
-  const boxH = rowHeights.reduce((a, b) => a + b, 0) + rowGap * (pairs - 1)
+  const boxH = rowHeights.reduce((a, b) => a + b, 0)
 
   // Outer cyan border
   pdf.setDrawColor(COLORS.cyan[0], COLORS.cyan[1], COLORS.cyan[2])
@@ -213,37 +216,40 @@ function drawDetailBox(
   pdf.setLineWidth(0.8)
 
   let ry = startY
-  for (let r = 0; r < pairs; r++) {
+  pairRows.forEach((cells, r) => {
     const rh = rowHeights[r]
-    const cells = rows.slice(r * cols, r * cols + cols)
+    const cx0 = boxX
+    const cx1 = boxX + colW
+    const cy = ry
+
+    // vertical divider between the two columns
+    pdf.line(cx1, cy, cx1, cy + rh)
 
     cells.forEach((cell, ci) => {
-      const cx = boxX + ci * colW
-      // Vertical divider between the two columns (not on the outer edge)
-      if (ci === 1) {
-        pdf.line(cx, startY, cx, startY + boxH)
-      }
-      const valueLines = wrap(cell.value, colW - cellPad * 2)
+      const cx = ci === 0 ? cx0 : cx1
+      const labelBaseline = cy + padY + labelLineH
       pdf.setFont('helvetica', 'bold')
-      pdf.setFontSize(8.5)
+      pdf.setFontSize(labelFont)
       pdf.setTextColor(COLORS.navyLight[0], COLORS.navyLight[1], COLORS.navyLight[2])
-      pdf.text(cell.label, cx + cellPad, ry + labelH - 1)
+      cell.label.forEach((ln: string, li: number) => {
+        pdf.text(ln, cx + padX, labelBaseline + li * labelLineH)
+      })
 
+      const valueBaseline = labelBaseline + cell.label.length * labelLineH + labelValueGap
       pdf.setFont('helvetica', 'normal')
       pdf.setFontSize(valueFont)
       pdf.setTextColor(COLORS.text[0], COLORS.text[1], COLORS.text[2])
-      const linesToDraw = Math.min(valueLines.length, 2)
-      valueLines.slice(0, linesToDraw).forEach((ln: string, li: number) => {
-        pdf.text(ln, cx + cellPad, ry + labelH + 3 + li * lineH)
+      cell.value.forEach((ln: string, li: number) => {
+        pdf.text(ln, cx + padX, valueBaseline + li * valueLineH)
       })
     })
 
     ry += rh
     // Horizontal divider between rows (not after the last)
-    if (r < pairs - 1) {
+    if (r < pairRows.length - 1) {
       pdf.line(boxX, ry, boxX + boxW, ry)
     }
-  }
+  })
 
   return startY + boxH + 8
 }

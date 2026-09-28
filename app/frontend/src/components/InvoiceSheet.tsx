@@ -38,35 +38,35 @@ export default function InvoiceSheet({
       <View style={styles.headerDivider} />
 
       <View style={styles.metaGrid}>
-        <View style={styles.metaCell}>
+        <View style={[styles.metaCell, styles.metaCellRow, styles.metaCellBorderR, styles.metaCellBorderB]}>
           <Text style={[styles.metaLabel, narrow && styles.metaLabelNarrow]}>Customer Name</Text>
           <Text style={styles.metaValue}>{invoice.owner_name}</Text>
         </View>
-        <View style={styles.metaCell}>
+        <View style={[styles.metaCell, styles.metaCellRow, styles.metaCellBorderB]}>
           <Text style={[styles.metaLabel, narrow && styles.metaLabelNarrow]}>Mobile No.</Text>
           <Text style={styles.metaValue}>{invoice.owner_phone}</Text>
         </View>
-        <View style={styles.metaCell}>
+        <View style={[styles.metaCell, styles.metaCellRow, styles.metaCellBorderR, styles.metaCellBorderB]}>
           <Text style={[styles.metaLabel, narrow && styles.metaLabelNarrow]}>Car No.</Text>
           <Text style={styles.metaValue}>{invoice.plate_number}</Text>
         </View>
-        <View style={styles.metaCell}>
+        <View style={[styles.metaCell, styles.metaCellRow, styles.metaCellBorderB]}>
           <Text style={[styles.metaLabel, narrow && styles.metaLabelNarrow]}>Bill No.</Text>
           <Text style={[styles.metaValue, styles.metaValueBold]}>{invoice.bill_ref}</Text>
         </View>
-        <View style={styles.metaCell}>
+        <View style={[styles.metaCell, styles.metaCellRow, styles.metaCellBorderR, styles.metaCellBorderB]}>
           <Text style={[styles.metaLabel, narrow && styles.metaLabelNarrow]}>Km.</Text>
           <Text style={styles.metaValue}>{invoice.km_reading || '—'}</Text>
         </View>
-        <View style={styles.metaCell}>
+        <View style={[styles.metaCell, styles.metaCellRow, styles.metaCellBorderB]}>
           <Text style={[styles.metaLabel, narrow && styles.metaLabelNarrow]}>Date</Text>
           <Text style={styles.metaValue}>{formatDate(invoice.created_at)}</Text>
         </View>
-        <View style={styles.metaCell}>
+        <View style={[styles.metaCell, styles.metaCellRow, styles.metaCellBorderR]}>
           <Text style={[styles.metaLabel, narrow && styles.metaLabelNarrow]}>Next Servicing Km.</Text>
           <Text style={styles.metaValue}>{invoice.next_service_km || '—'}</Text>
         </View>
-        <View style={styles.metaCell}>
+        <View style={[styles.metaCell, styles.metaCellRow]}>
           <Text style={[styles.metaLabel, narrow && styles.metaLabelNarrow]}>Next Service Date</Text>
           <Text style={styles.metaValue}>{invoice.next_service_date ? formatDate(invoice.next_service_date) : '—'}</Text>
         </View>
@@ -205,16 +205,15 @@ const styles = StyleSheet.create({
   },
   metaCell: {
     width: '50%',
-    flexDirection: 'row',
-    alignItems: 'center',
-    paddingHorizontal: 12,
-    paddingVertical: 8,
-    borderBottomWidth: 1,
-    borderBottomColor: colors.rowLine,
+    paddingHorizontal: 10,
+    paddingVertical: 7,
   },
-  metaLabel: { fontWeight: '800', color: colors.navy, width: 118, flexShrink: 0, fontSize: font.md },
-  metaLabelNarrow: { width: 110, fontSize: font.sm },
-  metaValue: { color: '#0f172a', fontWeight: '600', fontSize: font.md, flexShrink: 1, flexWrap: 'wrap' },
+  metaCellRow: { minHeight: 42, justifyContent: 'center' },
+  metaCellBorderR: { borderRightWidth: 1, borderRightColor: colors.rowLine },
+  metaCellBorderB: { borderBottomWidth: 1, borderBottomColor: colors.rowLine },
+  metaLabel: { fontWeight: '800', color: colors.navy, fontSize: font.xs, marginBottom: 2, textTransform: 'uppercase', letterSpacing: 0.3 },
+  metaLabelNarrow: { fontSize: 9 },
+  metaValue: { color: '#0f172a', fontWeight: '600', fontSize: font.md, flexWrap: 'wrap', width: '100%' },
   metaValueBold: { fontWeight: '800' },
 
   table: { marginTop: 12 },
