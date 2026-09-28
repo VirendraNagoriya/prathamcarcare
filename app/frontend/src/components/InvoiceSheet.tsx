@@ -38,40 +38,38 @@ export default function InvoiceSheet({
       <View style={styles.headerDivider} />
 
       <View style={styles.metaGrid}>
-        <View style={[styles.metaCell, narrow && styles.metaCellNarrow]}>
-          <Text style={[styles.metaLabel, narrow && styles.metaLabelNarrow]}>M/s.</Text>
+        <View style={styles.metaCell}>
+          <Text style={[styles.metaLabel, narrow && styles.metaLabelNarrow]}>Customer Name</Text>
           <Text style={styles.metaValue}>{invoice.owner_name}</Text>
         </View>
-        <View style={[styles.metaCell, narrow && styles.metaCellNarrow]}>
-          <Text style={[styles.metaLabel, narrow && styles.metaLabelNarrow]}>Mob.:</Text>
+        <View style={styles.metaCell}>
+          <Text style={[styles.metaLabel, narrow && styles.metaLabelNarrow]}>Mobile No.</Text>
           <Text style={styles.metaValue}>{invoice.owner_phone}</Text>
         </View>
-        <View style={[styles.metaCell, narrow && styles.metaCellNarrow]}>
+        <View style={styles.metaCell}>
           <Text style={[styles.metaLabel, narrow && styles.metaLabelNarrow]}>Car No.</Text>
           <Text style={styles.metaValue}>{invoice.plate_number}</Text>
         </View>
-        <View style={[styles.metaCell, narrow && styles.metaCellNarrow]}>
-          <Text style={[styles.metaLabel, narrow && styles.metaLabelNarrow]}>Bill NO.:</Text>
+        <View style={styles.metaCell}>
+          <Text style={[styles.metaLabel, narrow && styles.metaLabelNarrow]}>Bill No.</Text>
           <Text style={[styles.metaValue, styles.metaValueBold]}>{invoice.bill_ref}</Text>
         </View>
-        <View style={[styles.metaCell, narrow && styles.metaCellNarrow]}>
-          <Text style={[styles.metaLabel, narrow && styles.metaLabelNarrow]}>Km.:</Text>
-          <Text style={styles.metaValue}>{invoice.km_reading || 'ΓÇö'}</Text>
+        <View style={styles.metaCell}>
+          <Text style={[styles.metaLabel, narrow && styles.metaLabelNarrow]}>Km.</Text>
+          <Text style={styles.metaValue}>{invoice.km_reading || '—'}</Text>
         </View>
-        <View style={[styles.metaCell, narrow && styles.metaCellNarrow]}>
-          <Text style={[styles.metaLabel, narrow && styles.metaLabelNarrow]}>Date:</Text>
+        <View style={styles.metaCell}>
+          <Text style={[styles.metaLabel, narrow && styles.metaLabelNarrow]}>Date</Text>
           <Text style={styles.metaValue}>{formatDate(invoice.created_at)}</Text>
         </View>
-        <View style={[styles.metaCell, styles.metaCellWide]}>
+        <View style={styles.metaCell}>
           <Text style={[styles.metaLabel, narrow && styles.metaLabelNarrow]}>Next Servicing Km.</Text>
-          <Text style={styles.metaValue}>{invoice.next_service_km || 'ΓÇö'}</Text>
+          <Text style={styles.metaValue}>{invoice.next_service_km || '—'}</Text>
         </View>
-        {invoice.next_service_date ? (
-          <View style={[styles.metaCell, styles.metaCellWide]}>
-            <Text style={[styles.metaLabel, narrow && styles.metaLabelNarrow]}>Next Service Date</Text>
-            <Text style={styles.metaValue}>{invoice.next_service_date}</Text>
-          </View>
-        ) : null}
+        <View style={styles.metaCell}>
+          <Text style={[styles.metaLabel, narrow && styles.metaLabelNarrow]}>Next Service Date</Text>
+          <Text style={styles.metaValue}>{invoice.next_service_date ? formatDate(invoice.next_service_date) : '—'}</Text>
+        </View>
       </View>
 
       <View style={styles.table}>
@@ -214,10 +212,8 @@ const styles = StyleSheet.create({
     borderBottomWidth: 1,
     borderBottomColor: colors.rowLine,
   },
-  metaCellNarrow: { width: '100%', paddingHorizontal: 10, paddingVertical: 7 },
-  metaCellWide: { width: '100%' },
   metaLabel: { fontWeight: '800', color: colors.navy, width: 118, flexShrink: 0, fontSize: font.md },
-  metaLabelNarrow: { width: 92, fontSize: font.sm },
+  metaLabelNarrow: { width: 110, fontSize: font.sm },
   metaValue: { color: '#0f172a', fontWeight: '600', fontSize: font.md, flexShrink: 1, flexWrap: 'wrap' },
   metaValueBold: { fontWeight: '800' },
 

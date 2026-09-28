@@ -171,40 +171,81 @@ function drawDetailBox(
   rows: { label: string; value: string }[],
   startY: number,
 ): number {
-  const rowH = 25
-  const labelW = 128
-  const boxW = CONTENT_WIDTH
-  const boxH = rows.length * rowH
-  const boxX = MARGIN
+  const cols = 2
+  const rowGap = 3
+  const labelH = 13
+  const valueFont = 9.5
+  const lineH = 12
+  const cellPad = 8
+  const colW = CONTENT_WIDTH / cols
 
+  const boxX = MARGIN
+  const boxW = CONTENT_WIDTH
+
+  const wrap = (text: string, width: number): string[] => {
+    const lines = pdf.splitTextToSize(text, width)
+    return Array.isArray(lines) && lines.length > 0 ? lines : ['']
+  }
+
+  // Compute cell heights (label + up to 2 wrapped value lines)
+  const rowHeights: number[] = []
+  let pairs = 0
+  for (let i = 0; i < rows.length; i += cols) {
+    let maxCellH = 0
+    const chunk = rows.slice(i, i + cols)
+    chunk.forEach((c) => {
+      const valueLines = wrap(c.value, colW - cellPad * 2)
+      const linesToDraw = Math.min(valueLines.length, 2)
+      const cellH = labelH + linesToDraw * lineH + 8
+      maxCellH = Math.max(maxCellH, cellH)
+    })
+    rowHeights.push(maxCellH)
+    pairs++
+  }
+  const boxH = rowHeights.reduce((a, b) => a + b, 0) + rowGap * (pairs - 1)
+
+  // Outer cyan border
   pdf.setDrawColor(COLORS.cyan[0], COLORS.cyan[1], COLORS.cyan[2])
   pdf.setLineWidth(1.8)
   pdf.rect(boxX, startY, boxW, boxH, 'S')
 
   pdf.setDrawColor(COLORS.borderLight[0], COLORS.borderLight[1], COLORS.borderLight[2])
   pdf.setLineWidth(0.8)
-  pdf.line(boxX + labelW, startY, boxX + labelW, startY + boxH)
 
-  for (let i = 1; i < rows.length; i++) {
-    const ry = startY + i * rowH
-    pdf.line(boxX, ry, boxX + boxW, ry)
+  let ry = startY
+  for (let r = 0; r < pairs; r++) {
+    const rh = rowHeights[r]
+    const cells = rows.slice(r * cols, r * cols + cols)
+
+    cells.forEach((cell, ci) => {
+      const cx = boxX + ci * colW
+      // Vertical divider between the two columns (not on the outer edge)
+      if (ci === 1) {
+        pdf.line(cx, startY, cx, startY + boxH)
+      }
+      const valueLines = wrap(cell.value, colW - cellPad * 2)
+      pdf.setFont('helvetica', 'bold')
+      pdf.setFontSize(8.5)
+      pdf.setTextColor(COLORS.navyLight[0], COLORS.navyLight[1], COLORS.navyLight[2])
+      pdf.text(cell.label, cx + cellPad, ry + labelH - 1)
+
+      pdf.setFont('helvetica', 'normal')
+      pdf.setFontSize(valueFont)
+      pdf.setTextColor(COLORS.text[0], COLORS.text[1], COLORS.text[2])
+      const linesToDraw = Math.min(valueLines.length, 2)
+      valueLines.slice(0, linesToDraw).forEach((ln: string, li: number) => {
+        pdf.text(ln, cx + cellPad, ry + labelH + 3 + li * lineH)
+      })
+    })
+
+    ry += rh
+    // Horizontal divider between rows (not after the last)
+    if (r < pairs - 1) {
+      pdf.line(boxX, ry, boxX + boxW, ry)
+    }
   }
 
-  rows.forEach((row, i) => {
-    const ry = startY + i * rowH
-    drawCellText(pdf, row.label, boxX + 8, ry + rowH / 2 + 3, 'left', 'bold', 9.5, COLORS.navy)
-    const valueLines = pdf.splitTextToSize(row.value, CONTENT_WIDTH - labelW - 14)
-    if (valueLines.length === 1) {
-      drawCellText(pdf, row.value, boxX + labelW + 8, ry + rowH / 2 + 3, 'left', 'normal', 9.5, COLORS.text)
-    } else {
-      const lineH = 12
-      valueLines.forEach((ln: string, li: number) => {
-        drawCellText(pdf, ln, boxX + labelW + 8, ry + rowH / 2 - (valueLines.length - 1) * lineH / 2 + 3 + li * lineH, 'left', 'normal', 9.5, COLORS.text)
-      })
-    }
-  })
-
-  return startY + boxH
+  return startY + boxH + 8
 }
 
 export function billPdfFileName(invoice: InvoiceDetail): string {
@@ -255,12 +296,12 @@ export async function generateInvoicePDF(invoice: InvoiceDetail, settings?: Sett
 
   // ========== CUSTOMER DETAILS BOX ==========
   y = drawDetailBox(pdf, [
-    { label: 'M/s.', value: invoice.owner_name },
-    { label: 'Mob.:', value: invoice.owner_phone },
+    { label: 'Customer Name', value: invoice.owner_name },
+    { label: 'Mobile No.', value: invoice.owner_phone },
     { label: 'Car No.', value: invoice.plate_number },
-    { label: 'Bill No.:', value: invoice.bill_ref },
-    { label: 'Km.:', value: invoice.km_reading || '-' },
-    { label: 'Date:', value: formatDate(invoice.created_at) },
+    { label: 'Bill No.', value: invoice.bill_ref },
+    { label: 'Km.', value: invoice.km_reading || '-' },
+    { label: 'Date', value: formatDate(invoice.created_at) },
     { label: 'Next Servicing Km.', value: invoice.next_service_km || '-' },
     { label: 'Next Service Date', value: invoice.next_service_date ? formatDate(invoice.next_service_date) : '-' },
   ], y + 10)
