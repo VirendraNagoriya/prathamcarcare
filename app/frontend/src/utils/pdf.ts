@@ -275,25 +275,40 @@ export async function generateInvoicePDF(invoice: InvoiceDetail, settings?: Sett
   const logoX = MARGIN + (logoSectionW - logoW) / 2
   pdf.addImage(logoUrl, 'PNG', logoX, y + 8, logoW, logoH)
 
+  const rightTextW = rightX - (MARGIN + logoSectionW)
+
   pdf.setFont('helvetica', 'bold')
   pdf.setFontSize(27)
   pdf.setTextColor(COLORS.navy[0], COLORS.navy[1], COLORS.navy[2])
   pdf.text('PRATHAM CAR CARE', rightX, y + 36, { align: 'right' })
 
   pdf.setFont('helvetica', 'normal')
-  pdf.setFontSize(14.5)
+  pdf.setFontSize(17)
   pdf.setTextColor(COLORS.navyLight[0], COLORS.navyLight[1], COLORS.navyLight[2])
-  pdf.text('Multibrand Car Service', rightX, y + 56, { align: 'right' })
+  pdf.text('Multibrand Car Service', rightX, y + 58, { align: 'right' })
 
-  pdf.setFontSize(10)
+  // Service tagline (bold, wraps to fit the space right of the logo)
+  const tagline = 'All types of car serving Repairing Denting and painting Ac work'
+  pdf.setFont('helvetica', 'bold')
+  pdf.setFontSize(12)
+  pdf.setTextColor(COLORS.navy[0], COLORS.navy[1], COLORS.navy[2])
+  const tagLines = pdf.splitTextToSize(tagline, rightTextW)
+  let tagY = y + 76
+  tagLines.forEach((ln: string) => {
+    pdf.text(ln, rightX, tagY, { align: 'right' })
+    tagY += 14
+  })
+
+  pdf.setFont('helvetica', 'normal')
+  pdf.setFontSize(11)
   pdf.setTextColor(COLORS.textLight[0], COLORS.textLight[1], COLORS.textLight[2])
-  pdf.text('near Vedant Mangalam, Karvenagar, Pune', rightX, y + 74, { align: 'right' })
+  pdf.text('near Vedant Mangalam, Karvenagar, Pune', rightX, tagY + 4, { align: 'right' })
 
   pdf.setFont('helvetica', 'bold')
   pdf.setTextColor(COLORS.navyLight[0], COLORS.navyLight[1], COLORS.navyLight[2])
-  pdf.text('Call: 9011560540 / 9665939486', rightX, y + 90, { align: 'right' })
+  pdf.text('Call: 9011560540 / 9665939486', rightX, tagY + 20, { align: 'right' })
 
-  y = MARGIN + 104
+  y = MARGIN + (tagY - y) + 34
 
   // ========== HEADER DIVIDER ==========
   drawLine(pdf, MARGIN, y, rightX, y, 2, COLORS.navy)

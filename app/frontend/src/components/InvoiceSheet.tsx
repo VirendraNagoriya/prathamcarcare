@@ -28,6 +28,9 @@ export default function InvoiceSheet({
         <View style={styles.companyInfo}>
           <Text style={[styles.mainTitle, narrow && styles.mainTitleNarrow]}>PRATHAM CAR CARE</Text>
           <Text style={[styles.mainSubtitle, narrow && styles.mainSubtitleNarrow]}>Multibrand Car Service</Text>
+          <Text style={[styles.mainTagline, narrow && styles.mainTaglineNarrow]}>
+            All types of car serving Repairing Denting and painting Ac work
+          </Text>
           <Text style={[styles.addressText, narrow && styles.addressTextNarrow]}>
             Address: near Vedant Mangalam, Karvenagar, Pune{'\n'}
             <Text style={styles.addressBold}>Call: 9011560540 / 9665939486</Text>
@@ -183,6 +186,8 @@ const styles = StyleSheet.create({
   mainTitleNarrow: { fontSize: 22 },
   mainSubtitle: { fontSize: font.lg, fontWeight: '600', color: colors.slate, marginVertical: 3, textAlign: 'center' },
   mainSubtitleNarrow: { fontSize: font.sm },
+  mainTagline: { fontSize: font.sm, fontWeight: '800', color: colors.navy, marginBottom: 4, textAlign: 'center' },
+  mainTaglineNarrow: { fontSize: 10.5 },
   addressText: { fontSize: font.xs, color: colors.muted, lineHeight: 16, textAlign: 'center' },
   addressTextNarrow: { fontSize: 10, lineHeight: 14 },
   addressBold: { fontWeight: '800' },
