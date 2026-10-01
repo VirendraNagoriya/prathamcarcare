@@ -281,7 +281,7 @@ export async function generateInvoicePDF(invoice: InvoiceDetail, settings?: Sett
   pdf.setFontSize(11)
   pdf.setTextColor(COLORS.navy[0], COLORS.navy[1], COLORS.navy[2])
   const tagLines = pdf.splitTextToSize(tagline, logoSectionW - 4)
-  let tagY = y + 8 + logoH + 14
+  let tagY = y + 8 + logoH + 10
   tagLines.forEach((ln: string) => {
     pdf.text(ln, MARGIN + logoSectionW / 2, tagY, { align: 'center' })
     tagY += 13

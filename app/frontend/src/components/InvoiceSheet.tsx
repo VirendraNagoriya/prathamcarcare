@@ -167,7 +167,7 @@ const styles = StyleSheet.create({
   cardNarrow: { padding: 12, borderRadius: 8, minHeight: 648 },
   headerSection: {
     flexDirection: 'row',
-    alignItems: 'center',
+    alignItems: 'flex-start',
     width: '100%',
     paddingBottom: 18,
     marginBottom: 18,
@@ -175,7 +175,7 @@ const styles = StyleSheet.create({
   logoBox: {
     width: '40%',
     alignItems: 'center',
-    justifyContent: 'center',
+    justifyContent: 'flex-start',
     borderRightWidth: 1,
     borderRightColor: colors.rowLine,
     paddingRight: 12,
@@ -186,7 +186,7 @@ const styles = StyleSheet.create({
   mainTitleNarrow: { fontSize: 22 },
   mainSubtitle: { fontSize: font.lg, fontWeight: '600', color: colors.slate, marginVertical: 3, textAlign: 'center' },
   mainSubtitleNarrow: { fontSize: font.sm },
-  mainTagline: { fontSize: font.sm, fontWeight: '800', color: colors.navy, marginTop: 8, marginBottom: 4, textAlign: 'center' },
+  mainTagline: { fontSize: font.sm, fontWeight: '800', color: colors.navy, marginTop: 4, marginBottom: 4, textAlign: 'center' },
   mainTaglineNarrow: { fontSize: 10.5 },
   addressText: { fontSize: font.xs, color: colors.muted, lineHeight: 16, textAlign: 'center' },
   addressTextNarrow: { fontSize: 10, lineHeight: 14 },
