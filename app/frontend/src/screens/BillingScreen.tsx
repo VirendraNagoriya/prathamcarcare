@@ -52,6 +52,7 @@ export default function BillingScreen({
   const [nextKm, setNextKm] = useState('')
   const [nextDate, setNextDate] = useState('')
   const [showCal, setShowCal] = useState(false)
+  const [customerOpen, setCustomerOpen] = useState(false)
   const [rows, setRows] = useState<Row[]>([newRow()])
   const [catalog, setCatalog] = useState<CatalogItem[]>([])
   const [adding, setAdding] = useState(false)
@@ -197,46 +198,58 @@ export default function BillingScreen({
           <Text style={styles.error}>Loading bill for editing…</Text>
         ) : (
           <>
-        <Text style={styles.sectionLabel}>Customer & Vehicle</Text>
-        <View style={styles.metaGrid}>
-          <TextInput style={styles.metaInput} value={plate} onChangeText={setPlate} placeholder="Car No. (e.g. MH-12-XX-1234)" placeholderTextColor={colors.muted} autoCapitalize="characters" />
-          <TextInput style={styles.metaInput} value={owner} onChangeText={setOwner} placeholder="Customer name (M/s.)" placeholderTextColor={colors.muted} />
-          <TextInput style={styles.metaInput} value={phone} onChangeText={setPhone} placeholder="Mobile no." placeholderTextColor={colors.muted} keyboardType="phone-pad" />
-          <TextInput style={styles.metaInput} value={km} onChangeText={setKm} placeholder="Km." placeholderTextColor={colors.muted} keyboardType="number-pad" />
-          <TextInput style={styles.metaInput} value={nextKm} onChangeText={setNextKm} placeholder="Next servicing km." placeholderTextColor={colors.muted} keyboardType="number-pad" />
-          <Pressable style={styles.dateField} onPress={() => setShowCal(true)}>
-            <Text style={[styles.dateFieldText, !nextDate && styles.dateFieldPlaceholder]}>
-              {nextDate ? `📅 ${nextDate}` : '📅 Select next service date…'}
-            </Text>
-            {nextDate !== '' && (
+        <Pressable style={styles.dropdownHeader} onPress={() => setCustomerOpen((o) => !o)}>
+          <Text style={styles.sectionLabel}>Customer & Vehicle</Text>
+          <Text style={[styles.chevron, customerOpen && styles.chevronOpen]}>{customerOpen ? '▾' : '▸'}</Text>
+        </Pressable>
+        <View style={[styles.dropdownBody, !customerOpen && styles.dropdownBodyClosed]}>
+          <View style={styles.metaGrid}>
+            <TextInput style={styles.metaInput} value={plate} onChangeText={setPlate} placeholder="Car No. (e.g. MH-12-XX-1234)" placeholderTextColor={colors.muted} autoCapitalize="characters" />
+            <TextInput style={styles.metaInput} value={owner} onChangeText={setOwner} placeholder="Customer name (M/s.)" placeholderTextColor={colors.muted} />
+            <TextInput style={styles.metaInput} value={phone} onChangeText={setPhone} placeholder="Mobile no." placeholderTextColor={colors.muted} keyboardType="phone-pad" />
+            <TextInput style={styles.metaInput} value={km} onChangeText={setKm} placeholder="Km." placeholderTextColor={colors.muted} keyboardType="number-pad" />
+            <TextInput style={styles.metaInput} value={nextKm} onChangeText={setNextKm} placeholder="Next servicing km." placeholderTextColor={colors.muted} keyboardType="number-pad" />
+            <Pressable style={styles.dateField} onPress={() => setShowCal(true)}>
+              <Text style={[styles.dateFieldText, !nextDate && styles.dateFieldPlaceholder]}>
+                {nextDate ? `📅 ${nextDate}` : '📅 Select next service date…'}
+              </Text>
+              {nextDate !== '' && (
+                <Pressable
+                  hitSlop={8}
+                  onPress={(e) => { e.stopPropagation(); setNextDate('') }}
+                  style={styles.dateClear}
+                >
+                  <Text style={styles.dateClearText}>✕</Text>
+                </Pressable>
+              )}
+            </Pressable>
+            <View style={styles.quickRow}>
               <Pressable
-                hitSlop={8}
-                onPress={(e) => { e.stopPropagation(); setNextDate('') }}
-                style={styles.dateClear}
+                style={[styles.quickBtn, nextDate === addMonthsISO(3) && styles.quickBtnOn]}
+                onPress={() => setNextDate(addMonthsISO(3))}
               >
-                <Text style={styles.dateClearText}>✕</Text>
+                <Text style={[styles.quickBtnText, nextDate === addMonthsISO(3) && styles.quickBtnTextOn]}>
+                  next 3 months
+                </Text>
               </Pressable>
-            )}
-          </Pressable>
-          <View style={styles.quickRow}>
-            <Pressable
-              style={[styles.quickBtn, nextDate === addMonthsISO(3) && styles.quickBtnOn]}
-              onPress={() => setNextDate(addMonthsISO(3))}
-            >
-              <Text style={[styles.quickBtnText, nextDate === addMonthsISO(3) && styles.quickBtnTextOn]}>
-                next 3 months
-              </Text>
-            </Pressable>
-            <Pressable
-              style={[styles.quickBtn, nextDate === addMonthsISO(6) && styles.quickBtnOn]}
-              onPress={() => setNextDate(addMonthsISO(6))}
-            >
-              <Text style={[styles.quickBtnText, nextDate === addMonthsISO(6) && styles.quickBtnTextOn]}>
-                next 6 months
-              </Text>
-            </Pressable>
+              <Pressable
+                style={[styles.quickBtn, nextDate === addMonthsISO(6) && styles.quickBtnOn]}
+                onPress={() => setNextDate(addMonthsISO(6))}
+              >
+                <Text style={[styles.quickBtnText, nextDate === addMonthsISO(6) && styles.quickBtnTextOn]}>
+                  next 6 months
+                </Text>
+              </Pressable>
+            </View>
           </View>
         </View>
+        {!customerOpen && (
+          <Pressable style={styles.dropdownSummaryWrap} onPress={() => setCustomerOpen(true)}>
+            <Text style={styles.dropdownSummary}>
+              {[plate, owner, phone].filter(Boolean).join(' · ') || 'Tap to enter car no., customer name & mobile'}
+            </Text>
+          </Pressable>
+        )}
 
         <Text style={styles.sectionLabel}>Work / Parts (numbers are flexible — set any rate)</Text>
 
@@ -373,8 +386,31 @@ const styles = StyleSheet.create({
     fontSize: font.md,
     textTransform: 'uppercase',
     letterSpacing: 0.5,
+  },
+  dropdownHeader: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
     marginTop: 12,
     marginBottom: 8,
+  },
+  chevron: { color: colors.navy, fontSize: font.lg, fontWeight: '800' },
+  chevronOpen: { color: colors.blue },
+  dropdownBody: { overflow: 'hidden' },
+  dropdownBodyClosed: { display: 'none' },
+  dropdownSummary: {
+    color: colors.slate,
+    fontSize: font.xs,
+    fontWeight: '700',
+  },
+  dropdownSummaryWrap: {
+    marginBottom: 8,
+    paddingVertical: 10,
+    paddingHorizontal: 10,
+    backgroundColor: colors.metaBg,
+    borderRadius: 8,
+    borderWidth: 1,
+    borderColor: colors.line,
   },
   metaGrid: { gap: 8, marginBottom: 4 },
   metaInput: {

@@ -24,13 +24,13 @@ export default function InvoiceSheet({
       <View style={styles.headerSection}>
         <View style={styles.logoBox}>
           <CogLogo size={narrow ? 130 : 180} />
+          <Text style={[styles.mainTagline, narrow && styles.mainTaglineNarrow]}>
+            All types of car serving Repairing Denting and painting Ac work
+          </Text>
         </View>
         <View style={styles.companyInfo}>
           <Text style={[styles.mainTitle, narrow && styles.mainTitleNarrow]}>PRATHAM CAR CARE</Text>
           <Text style={[styles.mainSubtitle, narrow && styles.mainSubtitleNarrow]}>Multibrand Car Service</Text>
-          <Text style={[styles.mainTagline, narrow && styles.mainTaglineNarrow]}>
-            All types of car serving Repairing Denting and painting Ac work
-          </Text>
           <Text style={[styles.addressText, narrow && styles.addressTextNarrow]}>
             Address: near Vedant Mangalam, Karvenagar, Pune{'\n'}
             <Text style={styles.addressBold}>Call: 9011560540 / 9665939486</Text>
@@ -186,7 +186,7 @@ const styles = StyleSheet.create({
   mainTitleNarrow: { fontSize: 22 },
   mainSubtitle: { fontSize: font.lg, fontWeight: '600', color: colors.slate, marginVertical: 3, textAlign: 'center' },
   mainSubtitleNarrow: { fontSize: font.sm },
-  mainTagline: { fontSize: font.sm, fontWeight: '800', color: colors.navy, marginBottom: 4, textAlign: 'center' },
+  mainTagline: { fontSize: font.sm, fontWeight: '800', color: colors.navy, marginTop: 8, marginBottom: 4, textAlign: 'center' },
   mainTaglineNarrow: { fontSize: 10.5 },
   addressText: { fontSize: font.xs, color: colors.muted, lineHeight: 16, textAlign: 'center' },
   addressTextNarrow: { fontSize: 10, lineHeight: 14 },
@@ -210,15 +210,15 @@ const styles = StyleSheet.create({
   },
   metaCell: {
     width: '50%',
-    paddingHorizontal: 10,
-    paddingVertical: 7,
+    paddingHorizontal: 8,
+    paddingVertical: 4,
   },
-  metaCellRow: { minHeight: 42, justifyContent: 'center' },
+  metaCellRow: { minHeight: 26, justifyContent: 'center' },
   metaCellBorderR: { borderRightWidth: 1, borderRightColor: colors.rowLine },
   metaCellBorderB: { borderBottomWidth: 1, borderBottomColor: colors.rowLine },
-  metaLabel: { fontWeight: '800', color: colors.navy, fontSize: font.xs, marginBottom: 2, textTransform: 'uppercase', letterSpacing: 0.3 },
-  metaLabelNarrow: { fontSize: 9 },
-  metaValue: { color: '#0f172a', fontWeight: '600', fontSize: font.md, flexWrap: 'wrap', width: '100%' },
+  metaLabel: { fontWeight: '800', color: colors.navy, fontSize: 9, marginBottom: 1, textTransform: 'uppercase', letterSpacing: 0.3 },
+  metaLabelNarrow: { fontSize: 8.5 },
+  metaValue: { color: '#0f172a', fontWeight: '600', fontSize: font.sm, flexWrap: 'wrap', width: '100%' },
   metaValueBold: { fontWeight: '800' },
 
   table: { marginTop: 12 },

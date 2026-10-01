@@ -173,14 +173,14 @@ function drawDetailBox(
 ): number {
   const cols = 2
   const colW = CONTENT_WIDTH / cols
-  const padX = 8
-  const padY = 7
-  const labelFont = 8.5
-  const valueFont = 9.5
-  const labelLineH = 10
-  const valueLineH = 11
-  const labelValueGap = 2
-  const minRowH = 30
+  const padX = 6
+  const padY = 4
+  const labelFont = 7.5
+  const valueFont = 8.5
+  const labelLineH = 8.5
+  const valueLineH = 9.5
+  const labelValueGap = 1
+  const minRowH = 20
 
   const boxX = MARGIN
   const boxW = CONTENT_WIDTH
@@ -275,8 +275,20 @@ export async function generateInvoicePDF(invoice: InvoiceDetail, settings?: Sett
   const logoX = MARGIN + (logoSectionW - logoW) / 2
   pdf.addImage(logoUrl, 'PNG', logoX, y + 8, logoW, logoH)
 
-  const rightTextW = rightX - (MARGIN + logoSectionW)
+  // Service tagline centered BELOW the logo
+  const tagline = 'All types of car serving Repairing Denting and painting Ac work'
+  pdf.setFont('helvetica', 'bold')
+  pdf.setFontSize(11)
+  pdf.setTextColor(COLORS.navy[0], COLORS.navy[1], COLORS.navy[2])
+  const tagLines = pdf.splitTextToSize(tagline, logoSectionW - 4)
+  let tagY = y + 8 + logoH + 14
+  tagLines.forEach((ln: string) => {
+    pdf.text(ln, MARGIN + logoSectionW / 2, tagY, { align: 'center' })
+    tagY += 13
+  })
+  const leftBottom = tagY
 
+  // Company block (right of the logo)
   pdf.setFont('helvetica', 'bold')
   pdf.setFontSize(27)
   pdf.setTextColor(COLORS.navy[0], COLORS.navy[1], COLORS.navy[2])
@@ -287,28 +299,15 @@ export async function generateInvoicePDF(invoice: InvoiceDetail, settings?: Sett
   pdf.setTextColor(COLORS.navyLight[0], COLORS.navyLight[1], COLORS.navyLight[2])
   pdf.text('Multibrand Car Service', rightX, y + 58, { align: 'right' })
 
-  // Service tagline (bold, wraps to fit the space right of the logo)
-  const tagline = 'All types of car serving Repairing Denting and painting Ac work'
-  pdf.setFont('helvetica', 'bold')
-  pdf.setFontSize(12)
-  pdf.setTextColor(COLORS.navy[0], COLORS.navy[1], COLORS.navy[2])
-  const tagLines = pdf.splitTextToSize(tagline, rightTextW)
-  let tagY = y + 76
-  tagLines.forEach((ln: string) => {
-    pdf.text(ln, rightX, tagY, { align: 'right' })
-    tagY += 14
-  })
-
-  pdf.setFont('helvetica', 'normal')
   pdf.setFontSize(11)
   pdf.setTextColor(COLORS.textLight[0], COLORS.textLight[1], COLORS.textLight[2])
-  pdf.text('near Vedant Mangalam, Karvenagar, Pune', rightX, tagY + 4, { align: 'right' })
+  pdf.text('near Vedant Mangalam, Karvenagar, Pune', rightX, y + 80, { align: 'right' })
 
   pdf.setFont('helvetica', 'bold')
   pdf.setTextColor(COLORS.navyLight[0], COLORS.navyLight[1], COLORS.navyLight[2])
-  pdf.text('Call: 9011560540 / 9665939486', rightX, tagY + 20, { align: 'right' })
+  pdf.text('Call: 9011560540 / 9665939486', rightX, y + 98, { align: 'right' })
 
-  y = MARGIN + (tagY - y) + 34
+  y = Math.max(leftBottom, y + 98) + 14
 
   // ========== HEADER DIVIDER ==========
   drawLine(pdf, MARGIN, y, rightX, y, 2, COLORS.navy)
